@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  color-scheme: light only;
   /* YZH Solutions brand: gold on black wordmark; light-mode app per Decision */
   --background: #ffffff;
   --foreground: #0a0a0a;

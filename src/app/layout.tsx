@@ -18,6 +18,11 @@ export const metadata: Metadata = {
   description: "YZH Solutions HR system",
 };
 
+export const viewport = {
+  colorScheme: "light" as const,
+  themeColor: "#ffffff",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
