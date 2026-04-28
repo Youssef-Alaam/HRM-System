@@ -6,7 +6,7 @@ import { db } from "@/db";
 import { offices } from "@/db/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/common/page-header";
 
 export default async function OfficesPage() {
   const session = await auth();

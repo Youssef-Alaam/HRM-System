@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/common/page-header";
 
 export function StubPage({
   title,

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/common/page-header";
 
 const COPY: Record<string, { title: string; tag: string; description: string }> = {
   payroll: {

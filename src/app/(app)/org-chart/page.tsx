@@ -6,7 +6,7 @@ import { employees } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/common/page-header";
 import { initials } from "@/lib/utils";
 
 type EmployeeNode = {

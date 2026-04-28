@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/common/page-header";
 import {
   formatDateDisplay,
   initials,

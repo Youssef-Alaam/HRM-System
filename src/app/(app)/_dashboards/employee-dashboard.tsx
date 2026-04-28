@@ -12,8 +12,8 @@ import { employees, attendanceRecords, leaveRequests } from "@/db/schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/page-header";
-import { ComingSoonCard } from "@/components/coming-soon-card";
+import { PageHeader } from "@/components/common/page-header";
+import { ComingSoonCard } from "@/components/common/coming-soon-card";
 import { formatDateDisplay, formatTimeDisplay } from "@/lib/utils";
 
 export async function EmployeeDashboard({

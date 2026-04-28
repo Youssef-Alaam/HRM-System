@@ -1,4 +1,4 @@
-import { StubPage } from "@/components/stub-page";
+import { StubPage } from "@/components/common/stub-page";
 
 export default function SchedulePage() {
   return (

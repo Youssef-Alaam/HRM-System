@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { employees, departments, positions, offices } from "@/db/schema";
 import { canEditEmployee } from "@/lib/rbac";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/common/page-header";
 import { EmployeeForm } from "../../employee-form";
 
 export default async function EditEmployeePage({

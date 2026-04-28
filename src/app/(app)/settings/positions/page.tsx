@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { positions, departments } from "@/db/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/common/page-header";
 
 export default async function PositionsPage() {
   const session = await auth();

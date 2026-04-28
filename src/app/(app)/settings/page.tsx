@@ -10,7 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { auth } from "@/lib/auth";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/common/page-header";
 
 const TILES: { href: string; label: string; icon: LucideIcon; hint: string }[] = [
   { href: "/settings/departments", label: "Departments", icon: GitBranch, hint: "Hierarchy + heads" },

@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { departments, positions, offices, employees } from "@/db/schema";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/common/page-header";
 import { EmployeeForm } from "../employee-form";
 
 export const metadata = { title: "New employee · YZH-HR" };

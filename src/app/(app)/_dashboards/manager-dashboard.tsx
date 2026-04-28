@@ -6,9 +6,9 @@ import { employees, attendanceRecords, leaveRequests } from "@/db/schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/page-header";
-import { StatCard } from "@/components/stat-card";
-import { ComingSoonCard } from "@/components/coming-soon-card";
+import { PageHeader } from "@/components/common/page-header";
+import { StatCard } from "@/components/common/stat-card";
+import { ComingSoonCard } from "@/components/common/coming-soon-card";
 
 export async function ManagerDashboard({ managerId }: { managerId: string }) {
   const todayStr = new Date().toISOString().slice(0, 10);

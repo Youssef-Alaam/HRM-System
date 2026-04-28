@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { holidays } from "@/db/schema";
 import { Card, CardContent } from "@/components/ui/card";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/common/page-header";
 import { formatDateDisplay } from "@/lib/utils";
 
 export default async function HolidaysPage() {

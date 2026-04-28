@@ -5,8 +5,8 @@ import { db } from "@/db";
 import { auditLogs, employees } from "@/db/schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/page-header";
-import { StatCard } from "@/components/stat-card";
+import { PageHeader } from "@/components/common/page-header";
+import { StatCard } from "@/components/common/stat-card";
 import { formatDateTimeDisplay } from "@/lib/utils";
 import { HrDashboard } from "./hr-dashboard";
 
