@@ -12,7 +12,7 @@ export default async function AppLayout({
   if (!session?.user) redirect("/login");
 
   return (
-    <div className="flex min-h-screen bg-[var(--background)]">
+    <div className="flex h-screen bg-[var(--background)]">
       <Sidebar
         role={session.user.role}
         firstName={session.user.firstName}

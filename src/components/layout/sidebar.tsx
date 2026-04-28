@@ -51,7 +51,7 @@ export function Sidebar({
         </button>
       </div>
 
-      <nav className="flex-1 overflow-y-auto py-4 space-y-6">
+      <nav className="flex-1 overflow-y-auto py-4 space-y-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {sections.map((section, sectionIdx) => (
           <div key={section.label ?? sectionIdx}>
             {!collapsed && section.label && (
@@ -99,7 +99,11 @@ export function Sidebar({
       <div className="border-t border-[var(--sidebar-border)] p-3">
         <Link
           href={`/employees/me`}
-          className="flex items-center gap-3 rounded-md p-2 hover:bg-white/5"
+          className={cn(
+            "flex items-center gap-3 rounded-md p-2 hover:bg-white/5",
+            collapsed && "justify-center px-0",
+          )}
+          title={collapsed ? `${firstName} ${lastName}` : undefined}
         >
           <div className="h-8 w-8 rounded-full bg-[var(--primary)]/20 text-[var(--primary)] flex items-center justify-center text-xs font-semibold">
             {initials(`${firstName} ${lastName}`)}
