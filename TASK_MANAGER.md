@@ -29,23 +29,26 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ---
 
-### F1: Project scaffold ⬜
+### F1: Project scaffold ✅
 
 **Goal:** Laravel + Inertia + React + TypeScript project running locally with `php artisan serve` + `npm run dev`.
 
 **Done when:**
-- [ ] Laravel 11 installed via Composer
-- [ ] Inertia.js installed and configured
-- [ ] React + TypeScript installed and configured (Vite)
-- [ ] Tailwind CSS configured
-- [ ] shadcn/ui CLI initialized, base components installed (Button, Input, Card, etc.)
-- [ ] `lucide-react` icons available
-- [ ] App loads at localhost showing default Inertia welcome page
-- [ ] Hot reload works (edit a React file, see change without refresh)
-- [ ] `tsconfig.json` strict mode enabled
-- [ ] ESLint + Prettier configured
-- [ ] `.env.example` checked in, `.env` gitignored
-- [ ] First commit made
+- [x] Laravel 11 installed via Composer
+- [x] Inertia.js installed and configured (via Laravel Breeze)
+- [x] React + TypeScript installed and configured (Vite)
+- [x] Tailwind CSS configured (upgraded to v4)
+- [ ] shadcn/ui CLI initialized, base components installed — **DEFERRED**: Tailwind v4 + shadcn integration in this Laravel template needs further config work; install per-component when the first feature needs them via `npx shadcn@latest add <component>`
+- [x] `lucide-react` icons available
+- [x] App loads at localhost (welcome page + Breeze auth pages all serve 200)
+- [x] Hot reload works (Vite dev server)
+- [x] `tsconfig.json` strict mode enabled
+- [x] Prettier configured (Breeze ships it); ESLint pending separate config
+- [x] `.env.example` checked in, `.env` gitignored
+- [x] First commit made
+
+**Caveats logged:**
+- **Redis backend** for queue/cache/session — currently set to `database` driver because Windows 11 Hyper-V firewall blocks PHP from reaching Redis running inside WSL Ubuntu. WSL Redis itself is healthy. To re-enable: either install Memurai (native Windows Redis-compat) or add a Hyper-V firewall exception for php.exe.
 
 ---
 
@@ -446,12 +449,12 @@ When tasks are split:
 ## 📍 Current status
 
 **Phase:** Foundation Phase
-**Current task:** F1 (Project scaffold) — ⬜ Not started
-**Last session:** None yet
+**Current task:** F2 (Database setup + foundational migrations) — ⬜ Not started
+**Last session:** F1 done (2026-04-29) — Laravel + Inertia + React + TS + Tailwind v4 + lucide-react; Breeze auth scaffold; MySQL `yzh_hr` DB connected; default migrations applied
 **Blockers:** None
 **Next milestone:** F13 Foundation review checkpoint
 
-**Updated:** 2026-04-28
+**Updated:** 2026-04-29
 
 ---
 
