@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import {
     BarChart3,
     Building2,
@@ -23,9 +23,10 @@ import {
     Wallet,
     X,
 } from 'lucide-react';
-import { PropsWithChildren, ReactNode, useState } from 'react';
+import { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 
 import Dropdown from '@/Components/Dropdown';
+import LoadingScreen from '@/Components/LoadingScreen';
 
 type NavItem = {
     label: string;
@@ -105,6 +106,57 @@ const ADMIN_MENU_ITEMS: NavItem[] = [
     { label: 'System Settings', href: '/admin/settings', icon: Settings, permission: 'settings.edit' },
 ];
 
+/*
+|--------------------------------------------------------------------------
+| Route registry — URL → loading-screen metadata
+|--------------------------------------------------------------------------
+| Built once from NAV_GROUPS + ADMIN_MENU_ITEMS so the loading screen can
+| resolve the destination's title + section identifier before the new page
+| has rendered. The section is `{group letter}.0{position}` (A.01, B.02, …)
+| derived from the order in NAV_GROUPS — drafting-set notation.
+*/
+type RouteMeta = { title: string; section: string };
+
+const SECTION_LETTERS = 'ABCDEFGHIJKLMN';
+
+const ROUTE_REGISTRY: Record<string, RouteMeta> = (() => {
+    const reg: Record<string, RouteMeta> = {};
+    NAV_GROUPS.forEach((group, gi) => {
+        const letter = SECTION_LETTERS[gi] ?? 'X';
+        group.items.forEach((item, ii) => {
+            reg[item.href] = {
+                title: item.label,
+                section: `${letter}.${String(ii + 1).padStart(2, '0')}`,
+            };
+        });
+    });
+    ADMIN_MENU_ITEMS.forEach((item, ii) => {
+        reg[item.href] = {
+            title: item.label,
+            section: `S.${String(ii + 1).padStart(2, '0')}`,
+        };
+    });
+    // Routes outside the sidebar that still benefit from the loading screen.
+    reg['/profile'] = { title: 'Profile', section: 'P.01' };
+    return reg;
+})();
+
+/**
+ * Resolve an Inertia visit URL to a registry entry. Returns null for routes
+ * we don't track (which fall through to no loading screen — the page just
+ * renders when ready).
+ */
+function lookupRoute(rawUrl: string): RouteMeta | null {
+    try {
+        const path = new URL(rawUrl, window.location.origin).pathname;
+        return ROUTE_REGISTRY[path] ?? null;
+    } catch {
+        return null;
+    }
+}
+
+const NAV_LOADING_DEBOUNCE_MS = 200;
+
 function initials(name: string): string {
     return name
         .split(' ')
@@ -170,6 +222,41 @@ export default function AppLayout({
     });
     const [mobileOpen, setMobileOpen] = useState(false);
 
+    // Navigation loading state.
+    // 'start' fires when an Inertia visit begins; we resolve the destination's
+    // metadata, debounce 200ms (so fast loads don't flicker), then show the
+    // loading screen. 'finish' clears it (success or error).
+    const [navigatingTo, setNavigatingTo] = useState<RouteMeta | null>(null);
+
+    useEffect(() => {
+        let timer: ReturnType<typeof setTimeout> | null = null;
+
+        const offStart = router.on('start', (event) => {
+            const meta = lookupRoute(event.detail.visit.url.toString());
+            if (!meta) return;
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => {
+                setNavigatingTo(meta);
+            }, NAV_LOADING_DEBOUNCE_MS);
+        });
+
+        const offFinish = router.on('finish', () => {
+            if (timer) {
+                clearTimeout(timer);
+                timer = null;
+            }
+            setNavigatingTo(null);
+            // Close the mobile drawer if it was open while navigating.
+            setMobileOpen(false);
+        });
+
+        return () => {
+            if (timer) clearTimeout(timer);
+            offStart();
+            offFinish();
+        };
+    }, []);
+
     const toggleCollapsed = () => {
         setCollapsed((prev) => {
             const next = !prev;
@@ -195,9 +282,8 @@ export default function AppLayout({
         <div className="min-h-screen bg-yzh-bone text-yzh-ink">
             {/* Mobile top bar */}
             <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between bg-yzh-ink px-4 py-3 border-b border-yzh-ink-mute">
-                <Link href="/dashboard" className="flex items-baseline gap-2">
-                    <img src="/images/yzh-mark.png" alt="YZH" className="h-7 w-auto" />
-                    <span className="text-xs font-medium tracking-[0.3em] text-yzh-bone-soft">HR</span>
+                <Link href="/dashboard">
+                    <img src="/images/yzh-mark.png" alt="YZH Solutions" className="h-7 w-auto" />
                 </Link>
                 <div className="flex items-center gap-1">
                     {user && <UserMenu user={user} adminItems={adminItems} dark />}
@@ -225,16 +311,14 @@ export default function AppLayout({
                         <div className="flex items-center justify-between border-b border-yzh-ink-mute px-4 py-3">
                             <Link
                                 href="/dashboard"
-                                className="flex items-baseline gap-2"
                                 onClick={() => setMobileOpen(false)}
                             >
-                                <img src="/images/yzh-mark.png" alt="YZH" className="h-7 w-auto" />
-                                <span className="text-xs font-medium tracking-[0.3em] text-yzh-bone-soft">HR</span>
+                                <img src="/images/yzh-mark.png" alt="YZH Solutions" className="h-7 w-auto" />
                             </Link>
                             <button
                                 type="button"
                                 onClick={() => setMobileOpen(false)}
-                                className="inline-flex h-10 w-10 items-center justify-center rounded-md text-yzh-bone-soft hover:bg-yzh-ink-soft"
+                                className="inline-flex h-11 w-11 items-center justify-center rounded-md text-yzh-bone-soft hover:bg-yzh-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold"
                                 aria-label="Close menu"
                             >
                                 <X className="h-5 w-5" />
@@ -253,13 +337,12 @@ export default function AppLayout({
             <div className="flex min-h-screen">
                 {/* Desktop sidebar — sticky so it stays put while the main column scrolls */}
                 <aside
-                    className={`hidden lg:flex sticky top-0 h-screen shrink-0 flex-col border-r border-yzh-ink-mute bg-yzh-ink text-yzh-bone-soft transition-[width] duration-200 ${collapsed ? 'w-16' : 'w-64'}`}
+                    className={`hidden lg:flex sticky top-0 h-screen shrink-0 flex-col border-r border-yzh-ink-mute bg-yzh-ink text-yzh-bone-soft motion-safe:transition-[width] motion-safe:duration-300 motion-safe:ease-out ${collapsed ? 'w-16' : 'w-64'}`}
                 >
                     <div className="flex items-center justify-between border-b border-yzh-ink-mute px-3 py-4">
                         {!collapsed && (
-                            <Link href="/dashboard" className="flex items-baseline gap-2">
-                                <img src="/images/yzh-mark.png" alt="YZH" className="h-7 w-auto" />
-                                <span className="text-xs font-medium tracking-[0.3em] text-yzh-bone-soft">HR</span>
+                            <Link href="/dashboard">
+                                <img src="/images/yzh-mark.png" alt="YZH Solutions" className="h-7 w-auto" />
                             </Link>
                         )}
                         <button
@@ -285,20 +368,43 @@ export default function AppLayout({
                 </aside>
 
                 <div className="flex min-w-0 flex-1 flex-col">
-                    {/* Desktop top bar — page header on left, user menu on right */}
+                    {/* Desktop top bar — page header on left, user menu on right.
+                        During an Inertia visit the header is replaced with the
+                        destination's metadata so the user immediately sees
+                        where they're headed. */}
                     <header className="hidden lg:flex sticky top-0 z-20 items-center gap-4 border-b border-yzh-bone-soft bg-white px-6 py-4 lg:px-8">
-                        <div className="min-w-0 flex-1">{header}</div>
+                        <div className="min-w-0 flex-1">
+                            {navigatingTo ? (
+                                <NavigatingHeader meta={navigatingTo} />
+                            ) : (
+                                header
+                            )}
+                        </div>
                         {user && <UserMenu user={user} adminItems={adminItems} />}
                     </header>
 
-                    {/* Mobile shows the page header below the mobile top bar (since mobile top bar holds the user menu) */}
-                    {header && (
+                    {/* Mobile shows the page header below the mobile top bar
+                        (since mobile top bar holds the user menu). */}
+                    {(header || navigatingTo) && (
                         <div className="lg:hidden border-b border-yzh-bone-soft bg-white px-4 py-6 sm:px-6">
-                            {header}
+                            {navigatingTo ? (
+                                <NavigatingHeader meta={navigatingTo} />
+                            ) : (
+                                header
+                            )}
                         </div>
                     )}
 
-                    <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+                    <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+                        {navigatingTo ? (
+                            <LoadingScreen
+                                title={navigatingTo.title}
+                                section={navigatingTo.section}
+                            />
+                        ) : (
+                            children
+                        )}
+                    </main>
                 </div>
             </div>
         </div>
@@ -341,7 +447,7 @@ function SidebarNav({
                                         onClick={onNavigate}
                                         preserveScroll
                                         title={collapsed ? item.label : undefined}
-                                        className={`group flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold ${
+                                        className={`group flex items-center gap-3 rounded-md px-2 py-3 text-sm transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold lg:py-2 ${
                                             active
                                                 ? 'bg-yzh-gold/15 text-yzh-gold'
                                                 : 'text-yzh-bone-soft hover:bg-yzh-ink-soft hover:text-yzh-bone'
@@ -359,6 +465,24 @@ function SidebarNav({
                 </div>
             ))}
         </nav>
+    );
+}
+
+/**
+ * Header rendered while navigating to a tracked route — small drafting-set
+ * section identifier above the destination title. Replaces the current page's
+ * header until `router.on('finish')` fires.
+ */
+function NavigatingHeader({ meta }: { meta: RouteMeta }) {
+    return (
+        <div className="flex flex-col gap-1">
+            <p className="font-mono text-xs uppercase tracking-[0.22em] text-yzh-gold">
+                {meta.section}
+            </p>
+            <h1 className="text-2xl font-semibold tracking-tight text-yzh-ink">
+                {meta.title}
+            </h1>
+        </div>
     );
 }
 

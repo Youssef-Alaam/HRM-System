@@ -19,7 +19,7 @@ createInertiaApp({
 
         root.render(<App {...props} />);
     },
-    progress: {
-        color: '#d0a946',
-    },
+    // Disable the default Inertia top progress bar — replaced by the Compass
+    // Arc loading screen wired into AppLayout via router.on('start' / 'finish').
+    progress: false,
 });

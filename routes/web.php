@@ -6,9 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-    ]);
+    return Inertia::render('Welcome');
 });
 
 $placeholder = fn (string $title, string $description): Closure => fn () => Inertia::render('Placeholder', [
@@ -18,7 +16,12 @@ $placeholder = fn (string $title, string $description): Closure => fn () => Iner
 
 Route::middleware(['auth'])->group(function () use ($placeholder) {
     Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
+        // ?loading=1 forces the skeleton state on the "Coming up" cards so the
+        // F12.5 skeleton wiring can be demoed without a real async data source.
+        // Remove once the dashboard fetches actual data.
+        return Inertia::render('Dashboard', [
+            'loading' => request()->boolean('loading'),
+        ]);
     })->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
