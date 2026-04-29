@@ -211,26 +211,37 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ### F12.5: Design Pass 1 ⬜
 
-**Goal:** lift the UI from "AI-tier baseline" to "designed" before Walid sees it. Deferred from earlier in Day 1 because polishing before F7 (real sidebar) and F8 (seeded data) is shadowboxing. By this point we have the real shape and real content to design against.
+**🚨 READ [F12_5_PLAN.md](F12_5_PLAN.md) BEFORE STARTING.** The deep playbook lives there — page inventory, skill routing matrix, hour-by-hour order, per-screen DoD, anti-patterns to reject, Walid checkpoints, risk register. This entry is the 30-second summary.
 
-**Time-boxed:** 4 hours max.
+**Goal:** lift the UI from "AI-tier baseline" to "designed" before Walid sees it. Real sidebar + real seeded data are now in place, so design is no longer shadowboxing.
+
+**Time-boxed:** 4 hours hard limit. Walid mid-checkpoint after Hour 2 enforces scope cuts if needed.
+
+**Inputs:** [PRODUCT.md](PRODUCT.md) (voice + brand), [DESIGN.md](DESIGN.md) (locked tokens), [F12_5_PLAN.md](F12_5_PLAN.md) (this session's playbook).
+
+**Surface to be designed (complete inventory in F12_5_PLAN.md §3):**
+- 9 page files + 3 partials + 2 layouts (Welcome, 5 Auth pages, Dashboard, Profile/Edit + 3 partials, Placeholder; AppLayout audit, GuestLayout polish)
+- 1 layout to delete (`AuthenticatedLayout.tsx` — confirmed unused via grep)
+- 13 primitives to audit (Components/*.tsx — token compliance, focus rings, touch targets)
+- **NEW**: `<Skeleton>` primitive + 2 instance wirings (Dashboard cards, AppLayout route transition)
+- **NEW**: 6 branded error pages (403/404/419/429/500/503) routed through Inertia via `bootstrap/app.php` `withExceptions(...)`
 
 **Done when:**
-- [ ] Run Impeccable's `craft` flow against each visible screen — Welcome, Login, password recovery, sidebar shell, Dashboard, Profile, every placeholder page
-- [ ] Use Taste-skill's variance dials (DESIGN_VARIANCE / MOTION_INTENSITY / VISUAL_DENSITY) to push past defaults — reject the first idea, ship the second
-- [ ] Test against the 25-30 seeded employees from F8 — long names, missing fields, varying tenure all render cleanly
-- [ ] Empty states pass the PRODUCT.md "honest empty state" rule — what's true + what to do next
-- [ ] **Skeleton/loading primitive** — shared `<Skeleton>` component + skeleton states for at least Dashboard cards, sidebar (during route transition), and any list view that lands during F-Phase. Inertia's progress bar alone isn't enough on slow connections.
-- [ ] **Custom error pages** — branded 403 / 404 / 419 / 429 / 500 / 503 screens. Inertia + Laravel hand off via `App\Exceptions\Handler` (Laravel 11: `bootstrap/app.php` `withExceptions`). Render through Inertia (`Inertia::render('Errors/{code}', [...])`) so they share AppLayout/GuestLayout chrome instead of falling back to the default Symfony error pages. Useful copy + a "back to dashboard / login" CTA per state.
-- [ ] Touch targets ≥ 44px on every interactive element on mobile (DESIGN.md a11y minimums)
-- [ ] No purple/indigo/Laravel blue anywhere; gold used only for primary actions and brand mark
-- [ ] DESIGN.md updated if any token changes survive
-- [ ] Walid review before locking — at least one round of feedback baked in
+- [ ] Every page passes the per-screen DoD in F12_5_PLAN.md §5 (visual / voice / a11y / behavioral / responsive / code-hygiene)
+- [ ] 6 error pages live; exception routing wired through `bootstrap/app.php`
+- [ ] `<Skeleton>` primitive shipped + at least 2 instance wirings
+- [ ] `AuthenticatedLayout.tsx` deleted (Breeze leftover, no imports)
+- [ ] Mobile walkthrough at 375px clean across all surfaces
+- [ ] Brand-purity grep clean (no `purple-`, `indigo-`, `blue-` except semantic info, no off-token hex in `resources/`)
+- [ ] `php artisan test` still 114/114 (or higher if error-page tests added)
+- [ ] CI green on push
+- [ ] **Walid mid-checkpoint** after Hour 2 (error pages + skeleton + Welcome) — go/no-go decision
+- [ ] **Walid end-checkpoint** — 7-step screen-by-screen walkthrough, sign-off to unlock F13
 
 **Why this slot, not earlier:**
 - Polishing before F7 means redoing it once the real sidebar lands.
 - Polishing before F8 means designing against empty placeholders — guesswork.
-- The skills installed (Impeccable / Taste / UI-UX-Pro-Max) shine on visual probes against real screens.
+- The installed skills (impeccable / redesign-existing-projects / minimalist-ui / ux-patterns / pattern-matching) shine on visual probes against real screens with real data.
 
 ---
 
