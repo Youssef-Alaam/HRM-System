@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AppLayout from '@/Layouts/AppLayout';
 import { Head, usePage } from '@inertiajs/react';
 import {
     CalendarClock,
@@ -19,7 +19,7 @@ export default function Dashboard() {
     });
 
     return (
-        <AuthenticatedLayout
+        <AppLayout
             header={
                 <div className="flex flex-col gap-1">
                     <p className="text-xs uppercase tracking-widest text-yzh-text">
@@ -83,7 +83,7 @@ export default function Dashboard() {
                     </div>
                 </section>
             </div>
-        </AuthenticatedLayout>
+        </AppLayout>
     );
 }
 
