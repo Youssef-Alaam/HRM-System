@@ -179,14 +179,16 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ---
 
-### F11: CI/CD baseline ⬜
+### F11: CI/CD baseline ✅
 
 **Done when:**
-- [ ] GitHub repo created and pushed
-- [ ] `.github/workflows/test.yml` runs on push and PR
-- [ ] Workflow runs: lint, type check, Pest tests
-- [ ] Husky + lint-staged pre-commit hook configured
-- [ ] First successful CI run
+- [x] GitHub repo created and pushed (`Youssef-Alaam/HRM-System`, branch `claude/yzh-hr-prototype-prd-xYh5w`)
+- [x] [.github/workflows/test.yml](.github/workflows/test.yml) runs on every push and PR
+- [x] Workflow runs: ESLint, `tsc --noEmit`, Pest (114 tests)
+- [x] Husky 9 + lint-staged pre-commit hook configured ([.husky/pre-commit](.husky/pre-commit), config in [package.json](package.json)). Auto-arms on `npm install` via the `prepare` script.
+- [x] First successful CI run — `25127068938` (commit `1070ecd`)
+
+**Side fix shipped with F11:** `tests/TestCase::setUp()` now calls `withoutVite()`. Inertia views call `@vite([...])` in `app.blade.php`, which throws `ViteManifestNotFoundException` when there's no `public/build/manifest.json`. Locally either `npm run dev` is running (Vite serves a hot file) or a stale build provides the manifest, so the bug never surfaced; CI exposed it on the first run. Tests don't render real CSS/JS — `withoutVite()` swaps the facade with a no-op for the duration of every test.
 
 ---
 
@@ -478,9 +480,9 @@ When tasks are split:
 ## 📍 Current status
 
 **Phase:** Foundation Phase
-**Current task:** F11 (CI/CD baseline) — ⬜ Not started. **First task that needs `git push` — pause for explicit go-ahead before pushing.**
-**Last session (2026-04-29 evening, 2nd half):** F9 + F10 done. Holiday n-tier reference vertical + Pest 3.8 installed. 114 tests passing (109 PHPUnit + 5 Pest smoke). CLAUDE.md updated with both n-tier and Pest conventions.
-**Pre-approved chunk:** F3 → F10 done. F11 → F12.5 next (CI/CD, backups, design pass). F11 needs explicit push approval; F12 + F12.5 don't.
+**Current task:** F12 (Backup foundation via spatie/laravel-backup) — ⬜ Not started.
+**Last session (2026-04-29 evening, 3rd half):** F9 + F10 + F11 done + UI sidebar fixes. Holiday n-tier reference vertical, Pest 3.8 with canonical smoke test, CI green on GitHub Actions, Husky pre-commit hook armed, sidebar highlight + persistent layouts. 114 tests passing.
+**Pre-approved chunk:** F3 → F11 done. F12 + F12.5 next (backups, design pass).
 **Blockers:** None
 **Next milestone:** F13 Foundation review checkpoint
 
@@ -490,7 +492,7 @@ impeccable, taste-skill (4), ui-ux-pro-max (8), playwright-skill, obra/superpowe
 ### Toolchain locally (see `C:\Users\Dena\.local\yzh-hr-credentials.txt` for DB creds)
 PHP 8.3.30 (winget), Composer 2.9.7, MySQL 8.4.8 (Windows service `MySQL84`), Redis 7.0.15 (in WSL Ubuntu — currently bypassed via `database` driver due to Hyper-V firewall), Node 24.15.0.
 
-**Updated:** 2026-04-29 (evening, after F10)
+**Updated:** 2026-04-29 (evening, after F11)
 
 ---
 
