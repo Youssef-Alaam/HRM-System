@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class PasswordResetService
 {
@@ -28,11 +29,24 @@ class PasswordResetService
 
     public function resetPassword(Request $request): string
     {
+        $newPassword = (string) $request->string('password');
+
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (User $user) use ($request) {
+            function (User $user) use ($request, $newPassword) {
+                // Reject if the new password matches the existing one. Without this
+                // a user can "reset" to the same password and unknowingly weaken the
+                // intent of the flow (often the trigger was a suspected compromise).
+                if (Hash::check($newPassword, $user->password)) {
+                    $this->writeAudit('password_reset_rejected_reuse', $user, $request);
+
+                    throw ValidationException::withMessages([
+                        'password' => trans('auth.cannot_reuse_password'),
+                    ]);
+                }
+
                 $user->forceFill([
-                    'password' => Hash::make($request->string('password')),
+                    'password' => Hash::make($newPassword),
                     'remember_token' => Str::random(60),
                 ])->save();
 

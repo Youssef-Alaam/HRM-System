@@ -96,4 +96,89 @@ class AccountLockTest extends TestCase
         $response->assertRedirect(route('dashboard', absolute: false));
         $this->assertAuthenticatedAs($user->fresh());
     }
+
+    public function test_warning_appears_when_two_attempts_remain_before_lock(): void
+    {
+        User::factory()->create(['email' => 'warn@example.com']);
+
+        // First 7 wrong on rotating IPs (rotating to dodge per-IP throttle).
+        for ($i = 1; $i <= 7; $i++) {
+            RateLimiter::clear('warn@example.com|127.0.1.'.$i);
+            $this->withServerVariables(['REMOTE_ADDR' => '127.0.1.'.$i])
+                ->post('/login', [
+                    'email' => 'warn@example.com',
+                    'password' => 'wrong',
+                ]);
+        }
+
+        // 8th wrong → 2 remaining → warning should appear in the error message.
+        RateLimiter::clear('warn@example.com|127.0.1.8');
+        $response = $this->withServerVariables(['REMOTE_ADDR' => '127.0.1.8'])
+            ->post('/login', [
+                'email' => 'warn@example.com',
+                'password' => 'wrong',
+            ]);
+
+        $response->assertSessionHasErrors('email');
+        $errors = session('errors')->get('email');
+        $this->assertStringContainsString('2 attempt', $errors[0]);
+        $this->assertStringContainsString('locked', strtolower($errors[0]));
+    }
+
+    public function test_no_warning_before_attempt_eight(): void
+    {
+        User::factory()->create(['email' => 'nowarn@example.com']);
+
+        for ($i = 1; $i <= 7; $i++) {
+            RateLimiter::clear('nowarn@example.com|127.0.2.'.$i);
+            $response = $this->withServerVariables(['REMOTE_ADDR' => '127.0.2.'.$i])
+                ->post('/login', [
+                    'email' => 'nowarn@example.com',
+                    'password' => 'wrong',
+                ]);
+
+            $errors = session('errors')->get('email');
+            $this->assertStringNotContainsString('attempt(s) remaining', $errors[0] ?? '');
+            $this->assertStringNotContainsString('locked', strtolower($errors[0] ?? ''));
+        }
+    }
+
+    public function test_successful_login_does_not_clear_the_daily_failure_counter(): void
+    {
+        $user = User::factory()->create(['email' => 'mixed@example.com']);
+
+        // 5 wrong → triggers per-IP throttle on this IP, so we rotate IPs.
+        for ($i = 1; $i <= 5; $i++) {
+            RateLimiter::clear('mixed@example.com|127.0.3.'.$i);
+            $this->withServerVariables(['REMOTE_ADDR' => '127.0.3.'.$i])
+                ->post('/login', [
+                    'email' => 'mixed@example.com',
+                    'password' => 'wrong',
+                ]);
+        }
+
+        // 1 correct login on a fresh IP — clears per-IP throttle but the daily
+        // failure counter must persist (otherwise an attacker could pattern-mix).
+        RateLimiter::clear('mixed@example.com|127.0.3.99');
+        $this->withServerVariables(['REMOTE_ADDR' => '127.0.3.99'])
+            ->post('/login', [
+                'email' => 'mixed@example.com',
+                'password' => 'password',
+            ]);
+        $this->post('/logout');
+
+        // 5 more wrong on fresh IPs → at attempt #10 in the 24h window the
+        // account should lock, even though one success happened in between.
+        for ($i = 10; $i <= 14; $i++) {
+            RateLimiter::clear('mixed@example.com|127.0.3.'.$i);
+            $this->withServerVariables(['REMOTE_ADDR' => '127.0.3.'.$i])
+                ->post('/login', [
+                    'email' => 'mixed@example.com',
+                    'password' => 'wrong',
+                ]);
+        }
+
+        $user->refresh();
+        $this->assertNotNull($user->locked_at, 'Account must lock at the 10th failure even if a success happened mid-stream');
+    }
 }

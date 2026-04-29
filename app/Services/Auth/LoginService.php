@@ -23,6 +23,8 @@ class LoginService
 
     public const DAILY_FAILURE_WINDOW_SECONDS = 86400;  // 24 hours
 
+    public const WARN_REMAINING_AT_OR_BELOW = 2;
+
     public function attempt(LoginRequest $request): void
     {
         $email = (string) $request->string('email');
@@ -31,10 +33,27 @@ class LoginService
         $this->ensureNotRateLimited($request);
 
         if (! Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
-            $this->recordFailure($email, $request);
+            $context = $this->recordFailure($email, $request);
+
+            if ($context['just_locked']) {
+                throw ValidationException::withMessages([
+                    'email' => trans('auth.locked'),
+                ]);
+            }
+
+            $message = trans('auth.failed');
+            if (
+                $context['remaining_before_lock'] !== null
+                && $context['remaining_before_lock'] > 0
+                && $context['remaining_before_lock'] <= self::WARN_REMAINING_AT_OR_BELOW
+            ) {
+                $message .= ' '.trans('auth.warning_lockout', [
+                    'remaining' => $context['remaining_before_lock'],
+                ]);
+            }
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => $message,
             ]);
         }
 
@@ -80,7 +99,10 @@ class LoginService
         ]);
     }
 
-    private function recordFailure(string $email, LoginRequest $request): void
+    /**
+     * @return array{just_locked: bool, remaining_before_lock: int|null}
+     */
+    private function recordFailure(string $email, LoginRequest $request): array
     {
         RateLimiter::hit($request->throttleKey(), self::THROTTLE_DECAY_SECONDS);
 
@@ -91,17 +113,24 @@ class LoginService
         ]);
 
         if (! $user) {
-            return;
+            return ['just_locked' => false, 'remaining_before_lock' => null];
         }
 
         $dailyFailures = $this->incrementDailyFailureCounter($user->id);
 
+        $justLocked = false;
         if ($dailyFailures >= self::MAX_FAILURES_PER_DAY_BEFORE_LOCK && ! $user->isLocked()) {
             $this->lockAccount($user, $request, sprintf(
                 'Auto-lock: %d failed login attempts within 24h.',
                 $dailyFailures,
             ));
+            $justLocked = true;
         }
+
+        return [
+            'just_locked' => $justLocked,
+            'remaining_before_lock' => max(0, self::MAX_FAILURES_PER_DAY_BEFORE_LOCK - $dailyFailures),
+        ];
     }
 
     private function incrementDailyFailureCounter(int $userId): int
@@ -135,8 +164,11 @@ class LoginService
     {
         $user = $request->user();
 
+        // Clear the per-IP throttle so legit users aren't punished for fat-fingering,
+        // but DO NOT clear the 24h failure counter — that's the brute-force tripwire,
+        // and clearing it would let an attacker reset by guessing 9, sneaking in once
+        // (e.g. via a leaked password), then guessing 9 more without ever locking.
         RateLimiter::clear($request->throttleKey());
-        Cache::forget("login.failures.daily.{$user->id}");
 
         $user->forceFill([
             'last_login_at' => now(),

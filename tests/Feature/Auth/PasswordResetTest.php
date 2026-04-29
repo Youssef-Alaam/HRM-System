@@ -59,13 +59,42 @@ class PasswordResetTest extends TestCase
             $response = $this->post('/reset-password', [
                 'token' => $notification->token,
                 'email' => $user->email,
-                'password' => 'password',
-                'password_confirmation' => 'password',
+                'password' => 'a-fresh-password-2026',
+                'password_confirmation' => 'a-fresh-password-2026',
             ]);
 
             $response
                 ->assertSessionHasNoErrors()
                 ->assertRedirect(route('login'));
+
+            return true;
+        });
+    }
+
+    public function test_password_reset_rejects_reusing_the_current_password(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+            $response = $this->post('/reset-password', [
+                'token' => $notification->token,
+                'email' => $user->email,
+                'password' => 'password',           // same as factory default
+                'password_confirmation' => 'password',
+            ]);
+
+            $response->assertSessionHasErrors('password');
+            $errors = session('errors')->get('password');
+            $this->assertStringContainsString('cannot be the same', $errors[0]);
+
+            $this->assertDatabaseHas('audit_logs', [
+                'action' => 'password_reset_rejected_reuse',
+                'user_id' => $user->id,
+            ]);
 
             return true;
         });
