@@ -192,15 +192,20 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ---
 
-### F12: Backup system foundation ⬜
+### F12: Backup system foundation ✅
 
 **Done when:**
-- [ ] `spatie/laravel-backup` installed and configured
-- [ ] Backup destination: local storage `/storage/app/backups/`
-- [ ] `php artisan backup:run` creates a successful backup file
-- [ ] `php artisan backup:list` shows the backup
-- [ ] Cleanup policy: keep daily for 10 days
-- [ ] Will be scheduled later when running on prod (Phase 2)
+- [x] `spatie/laravel-backup ^9.3` installed
+- [x] Backup destination: dedicated `backups` filesystem disk → `storage/app/backups/<APP_NAME>/<timestamp>.zip`
+- [x] `php artisan backup:run` creates a successful backup file (verified: 6.65 MB zip with DB dump + project files)
+- [x] `php artisan backup:list` shows the backup (1 backup, healthy ✅, reachable ✅)
+- [x] Cleanup policy: `keep_all_backups_for_days = 10` (longer-tail weekly/monthly/yearly defaults retained, tune in Phase 2)
+- [x] Email notifications stubbed off (channels = `[]`) until Zoho SMTP lands; restore by re-adding `'mail'` channels in `config/backup.php`
+- [x] Will be scheduled later when running on prod (Phase 2)
+
+**Side fix shipped with F12:** Windows MySQL installer doesn't add `mysqldump` to PATH. Added `dump.dump_binary_path` env-var pointer to `config/database.php` (`DB_DUMP_BINARY_PATH`); set in local `.env`, documented in `.env.example`. Linux/CI leave it empty.
+
+**.gitignore additions:** `/storage/app/backups`, `/storage/app/backup-temp`.
 
 ---
 
@@ -480,11 +485,11 @@ When tasks are split:
 ## 📍 Current status
 
 **Phase:** Foundation Phase
-**Current task:** F12 (Backup foundation via spatie/laravel-backup) — ⬜ Not started.
-**Last session (2026-04-29 evening, 3rd half):** F9 + F10 + F11 done + UI sidebar fixes. Holiday n-tier reference vertical, Pest 3.8 with canonical smoke test, CI green on GitHub Actions, Husky pre-commit hook armed, sidebar highlight + persistent layouts. 114 tests passing.
-**Pre-approved chunk:** F3 → F11 done. F12 + F12.5 next (backups, design pass).
+**Current task:** F12.5 (Design Pass 1) — ⬜ Not started. **Time-boxed: 4 hours max. Pause for Walid before locking — at least one round of feedback baked in.**
+**Last session (2026-04-29 evening, 3rd half):** F9 → F12 all done. Holiday n-tier reference vertical, Pest 3.8, CI green on GitHub Actions, Husky pre-commit, sidebar UI fixes, spatie/laravel-backup running. 114 tests passing.
+**Pre-approved chunk:** F3 → F12 done. F12.5 next (design pass).
 **Blockers:** None
-**Next milestone:** F13 Foundation review checkpoint
+**Next milestone:** F13 Foundation review checkpoint (right after F12.5)
 
 ### Skills installed (locally; see `.agents/skills/`)
 impeccable, taste-skill (4), ui-ux-pro-max (8), playwright-skill, obra/superpowers (10), noobygains/godmode (5). Skills are gitignored — they live on this machine, not the repo.
@@ -492,7 +497,7 @@ impeccable, taste-skill (4), ui-ux-pro-max (8), playwright-skill, obra/superpowe
 ### Toolchain locally (see `C:\Users\Dena\.local\yzh-hr-credentials.txt` for DB creds)
 PHP 8.3.30 (winget), Composer 2.9.7, MySQL 8.4.8 (Windows service `MySQL84`), Redis 7.0.15 (in WSL Ubuntu — currently bypassed via `database` driver due to Hyper-V firewall), Node 24.15.0.
 
-**Updated:** 2026-04-29 (evening, after F11)
+**Updated:** 2026-04-29 (evening, after F12)
 
 ---
 

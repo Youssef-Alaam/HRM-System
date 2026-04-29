@@ -47,6 +47,16 @@ return [
             'report' => false,
         ],
 
+        // F12 — destination for spatie/laravel-backup. Phase 1 keeps backups
+        // on the same VPS; Phase 2 will add an off-host disk (S3/B2/Spaces)
+        // and configure spatie to write to both.
+        'backups' => [
+            'driver' => 'local',
+            'root' => storage_path('app/backups'),
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

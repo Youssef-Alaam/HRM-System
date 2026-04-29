@@ -60,6 +60,12 @@ return [
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
+            // F12 — spatie/laravel-backup reads this. Empty default = mysqldump
+            // is on PATH (Linux/CI). Windows devs override via .env because the
+            // MySQL installer doesn't add bin/ to PATH.
+            'dump' => [
+                'dump_binary_path' => env('DB_DUMP_BINARY_PATH', ''),
+            ],
         ],
 
         'mariadb' => [
