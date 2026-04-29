@@ -118,4 +118,53 @@ Tired but the plan is solid. Time to build.
 ### Tomorrow / next session
 - F2: design and migrate the foundational tables (organizations, users extension, offices, departments, positions, employees, holidays, audit_logs)
 
+---
+
+## 2026-04-29 (Day 1, evening continuation)
+
+**Hours:** ~4
+**Phase:** Foundation
+**Active task:** F2 + design system + skills install → all ✅; next: F3
+
+### Done
+- **Pre-F2 polish** (`e46a3ca`)
+  - ESLint v9 flat-config with typescript-eslint, react-hooks, prettier-compat — `npm run lint` runs clean
+  - PRODUCT.md committed: brand voice, user-role expectations, anti-references, strategic principles
+  - DESIGN.md committed: full token map (colors, type scale, spacing, radius, motion, touch targets, date formats)
+- **F2 schema** (`78d1bd5`)
+  - 10 migrations across 8 foundational tables — organizations, users (extension), offices, departments, positions, employees (54 cols), holidays, audit_logs
+  - 2 deferred-FK migrations to break the circular `users` ↔ `employees` link
+  - 17 FKs verified in MySQL after migrate
+  - All business tables carry `org_id` + `version` + soft-delete
+  - Audit_logs deliberately immutable (no updated_at)
+- **Skills installed via `npx skills add`**: impeccable, taste-skill pack, ui-ux-pro-max pack, playwright-skill, obra/superpowers, noobygains/godmode (~71 skills total). All gitignored under `.agents/` and per-agent dirs.
+- **Brand & visual layer** (`e9a4957` then `eaa2189`)
+  - Color palette extracted from yzhsolutions.com elementor CSS — `#d0a946` primary, ink scale, slate, bone
+  - Logos saved (`yzh-mark.png` gold monogram, `yzh-wordmark-white.png`)
+  - Tailwind v4 `@theme` carries the YZH tokens
+  - Welcome.tsx replaced with branded landing
+  - Reskinned all Breeze surfaces: PrimaryButton/SecondaryButton/DangerButton/TextInput/InputLabel/Checkbox/NavLink/ResponsiveNavLink/Dropdown, AuthenticatedLayout (ink topbar, gold-tinted avatar, gold underline on active nav), GuestLayout (split-screen — ink brand panel + bone form panel), ApplicationLogo, all auth pages (Login/Register/ForgotPassword/ResetPassword/VerifyEmail/ConfirmPassword), Dashboard (welcome + "coming up" cards), Profile (Edit + 3 partials including DangerButton modal)
+- **Test login seeded**: org "YZH Solutions" + user `test@yzh.test` / `password123`
+
+### Decisions made this session
+- **shadcn/ui rolled back** for now — its Laravel template assumes a Tailwind v4 `@theme` token mapping that needs CSS rewriting. Components install per-feature via `npx shadcn@latest add <name>` when actually needed.
+- **Redis swapped to database driver** in `.env` — Windows 11 Hyper-V firewall blocks PHP from reaching WSL Redis on `localhost:6379`. WSL Redis works internally. Real fix later: Memurai or Hyper-V firewall exception.
+- **Design pass deferred to between F8 and F13.** The current AI-tier UI is functional and on-brand color-wise but lacks character. Polishing now would mean redoing it after F7 (real sidebar per Walid's screenshot) and F8 (seeded data) — both make a real polish pass much more grounded.
+
+### Caveats / open
+- Test user has no role assigned yet — F4 will fix
+- Dashboard is a placeholder welcome state — real role-aware dashboards land in Feature 1
+- No real models written yet (Eloquent) — F9 sets up the Service+Repo scaffolding pattern
+- Vite hot-reload background task got stopped at one point; user uses prebuilt assets via `php artisan serve`. Run `npm run dev` if you want hot reload.
+
+### Lessons
+- The Tailwind v4 + shadcn + Inertia stack is bleeding-edge enough that even shadcn's official Laravel template needs help. Keep an eye on it when shadcn 3.x lands.
+- The `vercel-labs/skills` CLI is the right install path for AI-agent skills. Each repo install needs explicit user authorization — sandbox blocks them as untrusted external code by default.
+- Brand color extraction from a WordPress + Elementor site: look for `--e-global-color-*` in the elementor kit CSS (`/wp-content/uploads/elementor/css/post-3.css?ver=*`). That's the locked palette.
+
+### Tomorrow / next session
+- F3: install Sanctum, add login rate-limiting (5/15min) + day-lock (10/day), wire login/logout/login_failed events to audit_logs
+- Then continue F4 → F8 (user pre-approved chunk)
+- After F8: Design Pass 1 (1 newly-added task), then F13 review
+
 <!-- New entries get added below this line -->

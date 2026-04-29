@@ -198,6 +198,29 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ---
 
+### F12.5: Design Pass 1 ⬜
+
+**Goal:** lift the UI from "AI-tier baseline" to "designed" before Walid sees it. Deferred from earlier in Day 1 because polishing before F7 (real sidebar) and F8 (seeded data) is shadowboxing. By this point we have the real shape and real content to design against.
+
+**Time-boxed:** 4 hours max.
+
+**Done when:**
+- [ ] Run Impeccable's `craft` flow against each visible screen — Welcome, Login, Register, password recovery, sidebar shell, Dashboard, Profile, every placeholder page
+- [ ] Use Taste-skill's variance dials (DESIGN_VARIANCE / MOTION_INTENSITY / VISUAL_DENSITY) to push past defaults — reject the first idea, ship the second
+- [ ] Test against the 25-30 seeded employees from F8 — long names, missing fields, varying tenure all render cleanly
+- [ ] Empty states pass the PRODUCT.md "honest empty state" rule — what's true + what to do next
+- [ ] Touch targets ≥ 44px on every interactive element on mobile (DESIGN.md a11y minimums)
+- [ ] No purple/indigo/Laravel blue anywhere; gold used only for primary actions and brand mark
+- [ ] DESIGN.md updated if any token changes survive
+- [ ] Walid review before locking — at least one round of feedback baked in
+
+**Why this slot, not earlier:**
+- Polishing before F7 means redoing it once the real sidebar lands.
+- Polishing before F8 means designing against empty placeholders — guesswork.
+- The skills installed (Impeccable / Taste / UI-UX-Pro-Max) shine on visual probes against real screens.
+
+---
+
 ### F13: Foundation review checkpoint 🟦
 
 **Walid reviews everything above before Feature Phase starts.**
@@ -450,11 +473,18 @@ When tasks are split:
 
 **Phase:** Foundation Phase
 **Current task:** F3 (Auth via Sanctum) — ⬜ Not started
-**Last session:** F2 done (2026-04-29) — 8 foundational tables (54-col employees, expat support, leave balances, audit_logs, 17 FKs); pre-F2 added ESLint, PRODUCT.md, DESIGN.md
+**Last session (2026-04-29 evening):** F2 + brand & visual layer + skills install. Test login `test@yzh.test` / `password123`. Visible at `/`, `/login`, `/dashboard`, `/profile`. UI is functional but at "AI-tier" — full polish deferred to new F12.5 task between F8 and F13.
+**Pre-approved chunk:** F3 → F8 (auth, RBAC, audit log, scope, sidebar, seed data) — proceed without per-task review.
 **Blockers:** None
 **Next milestone:** F13 Foundation review checkpoint
 
-**Updated:** 2026-04-29
+### Skills installed (locally; see `.agents/skills/`)
+impeccable, taste-skill (4), ui-ux-pro-max (8), playwright-skill, obra/superpowers (10), noobygains/godmode (5). Skills are gitignored — they live on this machine, not the repo.
+
+### Toolchain locally (see `C:\Users\Dena\.local\yzh-hr-credentials.txt` for DB creds)
+PHP 8.3.30 (winget), Composer 2.9.7, MySQL 8.4.8 (Windows service `MySQL84`), Redis 7.0.15 (in WSL Ubuntu — currently bypassed via `database` driver due to Hyper-V firewall), Node 24.15.0.
+
+**Updated:** 2026-04-29 (evening)
 
 ---
 

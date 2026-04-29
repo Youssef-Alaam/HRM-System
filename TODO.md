@@ -4,29 +4,27 @@
 >
 > **Cleared at end of every session.** Anything important migrates to TASK_MANAGER.md or PROGRESS.md.
 
-**Last session:** 2026-04-28
+**Last session:** 2026-04-29 (evening)
 
 ---
 
 ## 🎯 Today's focus
 
-(What's the goal of this session? Read TASK_MANAGER.md, find next task, write it here.)
+Pick up F3 (Sanctum + login hardening + audit-log auth events) and proceed through the user-pre-approved chunk: F3 → F4 → F5 → F6 → F7 → F8.
 
 ---
 
 ## 🔥 Right now (active task)
 
-(What I'm working on at this exact moment. One thing.)
+F3 — Sanctum install + rate-limited login + audit_logs entries for login/logout/login_failed/password_reset.
 
 ---
 
 ## 📋 Next up (this session, after current)
 
-(Order matters. Don't pre-plan more than 2-3 items.)
-
-1.
-2.
-3.
+1. F4 — RBAC via Spatie Permission (4 roles, ~30 permissions, middleware, 1-2 example policies)
+2. F5 — Audit log infrastructure (`Auditable` trait + observer)
+3. F6 — Multi-tenant scope (`BelongsToOrg` trait + `OrgScope` global scope)
 
 ---
 
@@ -34,39 +32,33 @@
 
 (Things blocking me that need Walid's input)
 
--
+- None as of 2026-04-29 evening.
 
 ---
 
 ## 💡 Notes / discoveries
 
-(Things I learned this session that aren't yet in docs)
-
--
+- The `vercel-labs/skills` CLI installs to `.agents/skills/<name>` and symlinks into `.claude/skills/<name>` for Claude Code; gitignored.
+- The brand color `#d0a946` was extracted from yzhsolutions.com's elementor kit CSS — `--e-global-color-primary`.
+- Tailwind v4 + shadcn don't fully agree yet on Inertia/Laravel projects — install shadcn components per-feature when needed, not eagerly.
 
 ---
 
 ## 🐛 Bugs found
 
-(Bugs noticed during this session — minor stuff goes here, major bugs go in TASK_MANAGER.md)
-
--
+- None open.
 
 ---
 
 ## ⏸️ Stuck on
 
-(Currently blocked, with Stage info per WHEN_STUCK.md)
-
--
+- None.
 
 ---
 
 ## ✅ Completed this session
 
-(Migrate to PROGRESS.md at end of session)
-
--
+(Fully migrated to PROGRESS.md entry for 2026-04-29 evening continuation.)
 
 ---
 
