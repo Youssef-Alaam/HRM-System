@@ -109,13 +109,7 @@ export default function Login({
             </form>
 
             <p className="mt-8 text-center text-sm text-yzh-slate">
-                Don't have an account?{' '}
-                <Link
-                    href={route('register')}
-                    className="font-medium text-yzh-gold-600 hover:text-yzh-gold-700 hover:underline"
-                >
-                    Register here
-                </Link>
+                Need an account? Contact your HR admin.
             </p>
         </GuestLayout>
     );

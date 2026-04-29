@@ -227,9 +227,9 @@ export default function AppLayout({
             )}
 
             <div className="flex min-h-screen">
-                {/* Desktop sidebar */}
+                {/* Desktop sidebar — sticky so it stays put while the main column scrolls */}
                 <aside
-                    className={`hidden lg:flex shrink-0 flex-col border-r border-yzh-ink-mute bg-yzh-ink text-yzh-bone-soft transition-[width] duration-200 ${collapsed ? 'w-16' : 'w-64'}`}
+                    className={`hidden lg:flex sticky top-0 h-screen shrink-0 flex-col border-r border-yzh-ink-mute bg-yzh-ink text-yzh-bone-soft transition-[width] duration-200 ${collapsed ? 'w-16' : 'w-64'}`}
                 >
                     <div className="flex items-center justify-between border-b border-yzh-ink-mute px-3 py-4">
                         {!collapsed && (
@@ -287,7 +287,10 @@ function SidebarNav({
     onNavigate?: () => void;
 }) {
     return (
-        <nav className="flex-1 overflow-y-auto py-3">
+        <nav
+            className="flex-1 overflow-y-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            style={{ msOverflowStyle: 'none' }}
+        >
             {groups.map((group) => (
                 <div key={group.label} className="px-3 pb-3">
                     {!collapsed && (

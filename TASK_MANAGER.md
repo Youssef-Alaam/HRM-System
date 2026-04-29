@@ -205,10 +205,11 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 **Time-boxed:** 4 hours max.
 
 **Done when:**
-- [ ] Run Impeccable's `craft` flow against each visible screen — Welcome, Login, Register, password recovery, sidebar shell, Dashboard, Profile, every placeholder page
+- [ ] Run Impeccable's `craft` flow against each visible screen — Welcome, Login, password recovery, sidebar shell, Dashboard, Profile, every placeholder page
 - [ ] Use Taste-skill's variance dials (DESIGN_VARIANCE / MOTION_INTENSITY / VISUAL_DENSITY) to push past defaults — reject the first idea, ship the second
 - [ ] Test against the 25-30 seeded employees from F8 — long names, missing fields, varying tenure all render cleanly
 - [ ] Empty states pass the PRODUCT.md "honest empty state" rule — what's true + what to do next
+- [ ] **Skeleton/loading primitive** — shared `<Skeleton>` component + skeleton states for at least Dashboard cards, sidebar (during route transition), and any list view that lands during F-Phase. Inertia's progress bar alone isn't enough on slow connections.
 - [ ] Touch targets ≥ 44px on every interactive element on mobile (DESIGN.md a11y minimums)
 - [ ] No purple/indigo/Laravel blue anywhere; gold used only for primary actions and brand mark
 - [ ] DESIGN.md updated if any token changes survive

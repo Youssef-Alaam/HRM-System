@@ -27,20 +27,12 @@ export default function Welcome({ auth }: PageProps) {
                                 Dashboard
                             </Link>
                         ) : (
-                            <>
-                                <Link
-                                    href={route('login')}
-                                    className="rounded-md px-4 py-2 text-yzh-bone-soft transition hover:text-yzh-gold"
-                                >
-                                    Log in
-                                </Link>
-                                <Link
-                                    href={route('register')}
-                                    className="rounded-md bg-yzh-gold px-4 py-2 font-medium text-yzh-ink transition hover:bg-yzh-gold-400"
-                                >
-                                    Register
-                                </Link>
-                            </>
+                            <Link
+                                href={route('login')}
+                                className="rounded-md bg-yzh-gold px-4 py-2 font-medium text-yzh-ink transition hover:bg-yzh-gold-400"
+                            >
+                                Log in
+                            </Link>
                         )}
                     </nav>
                 </header>
@@ -66,10 +58,10 @@ export default function Welcome({ auth }: PageProps) {
                     <div className="flex flex-wrap gap-3 pt-2">
                         {!auth.user && (
                             <Link
-                                href={route('register')}
+                                href={route('login')}
                                 className="rounded-md bg-yzh-gold px-6 py-3 font-medium text-yzh-ink transition hover:bg-yzh-gold-400"
                             >
-                                Get started
+                                Sign in
                             </Link>
                         )}
                         <a
