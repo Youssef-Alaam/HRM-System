@@ -2,10 +2,10 @@ import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PasswordInput from '@/Components/PasswordInput';
-import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowUpRight } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 export default function Login({
@@ -30,25 +30,25 @@ export default function Login({
 
     return (
         <GuestLayout>
-            <Head title="Log in" />
+            <Head title="Sign in" />
 
-            <header className="mb-8">
-                <h1 className="text-3xl font-semibold tracking-tight text-yzh-ink">
-                    Welcome back
-                </h1>
-                <p className="mt-2 text-sm text-yzh-slate">
-                    Sign in to continue to YZH HR.
+            <header className="mb-10">
+                <p className="font-mono text-xs uppercase tracking-[0.24em] text-yzh-gold">
+                    A.02 / Sign in
                 </p>
+                <h1 className="mt-3 text-4xl font-semibold leading-[1.05] tracking-tight text-yzh-ink">
+                    Sign in.
+                </h1>
             </header>
 
             {status && (
-                <div className="mb-6 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                <div className="mb-6 border-l-0 border-t border-green-200 bg-green-50 px-4 py-3 font-mono text-xs uppercase tracking-[0.18em] text-green-700">
                     {status}
                 </div>
             )}
 
-            <form onSubmit={submit} className="space-y-5">
-                <div className="space-y-1.5">
+            <form onSubmit={submit} className="space-y-6">
+                <div className="space-y-2">
                     <InputLabel htmlFor="email" value="Email" />
                     <TextInput
                         id="email"
@@ -63,15 +63,15 @@ export default function Login({
                     <InputError message={errors.email} />
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                     <div className="flex items-center justify-between">
                         <InputLabel htmlFor="password" value="Password" />
                         {canResetPassword && (
                             <Link
                                 href={route('password.request')}
-                                className="rounded text-xs font-medium text-yzh-gold-600 hover:text-yzh-gold-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold"
+                                className="rounded font-mono text-[0.6875rem] uppercase tracking-[0.2em] text-yzh-slate transition-colors duration-150 ease-out hover:text-yzh-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold"
                             >
-                                Forgot password?
+                                Forgot?
                             </Link>
                         )}
                     </div>
@@ -86,7 +86,7 @@ export default function Login({
                     <InputError message={errors.password} />
                 </div>
 
-                <label className="flex items-center gap-2 text-sm text-yzh-slate">
+                <label className="flex items-center gap-3 text-sm text-yzh-slate">
                     <Checkbox
                         name="remember"
                         checked={data.remember}
@@ -100,17 +100,24 @@ export default function Login({
                     Keep me signed in on this device
                 </label>
 
-                <PrimaryButton
-                    className="w-full"
+                <button
+                    type="submit"
                     disabled={processing}
+                    className="group inline-flex min-h-12 w-full items-center justify-center gap-3 border border-yzh-gold px-5 py-3 font-mono text-xs uppercase tracking-[0.22em] text-yzh-gold transition-colors duration-150 ease-out hover:bg-yzh-gold hover:text-yzh-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold focus-visible:ring-offset-2 focus-visible:ring-offset-yzh-bone disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                    {processing ? 'Signing in…' : 'Sign in'}
-                </PrimaryButton>
+                    <span>{processing ? 'Signing in' : 'Sign in'}</span>
+                    <ArrowUpRight
+                        className="h-4 w-4 transition-transform duration-150 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                        aria-hidden="true"
+                    />
+                </button>
             </form>
 
-            <p className="mt-8 text-center text-sm text-yzh-slate">
-                Need an account? Contact your HR admin.
-            </p>
+            <footer className="mt-12 border-t border-yzh-bone-soft pt-6">
+                <p className="font-mono text-[0.6875rem] uppercase tracking-[0.22em] text-yzh-text">
+                    Need an account? Contact your HR admin.
+                </p>
+            </footer>
         </GuestLayout>
     );
 }

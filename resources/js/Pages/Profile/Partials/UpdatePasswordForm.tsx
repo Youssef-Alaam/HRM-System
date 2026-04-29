@@ -1,9 +1,9 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PasswordInput from '@/Components/PasswordInput';
-import PrimaryButton from '@/Components/PrimaryButton';
 import { Transition } from '@headlessui/react';
 import { useForm } from '@inertiajs/react';
+import { ArrowUpRight } from 'lucide-react';
 import { FormEventHandler, useRef } from 'react';
 
 export default function UpdatePasswordForm({
@@ -49,17 +49,15 @@ export default function UpdatePasswordForm({
 
     return (
         <section className={className}>
-            <header>
-                <h2 className="text-base font-semibold text-yzh-ink">
-                    Change password
-                </h2>
-                <p className="mt-1 text-sm text-yzh-slate">
-                    Use a long password you don't reuse anywhere else.
-                </p>
-            </header>
+            <h2 className="text-xl font-semibold tracking-tight text-yzh-ink">
+                Change password.
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-yzh-slate">
+                Use a long password you don't reuse anywhere else.
+            </p>
 
-            <form onSubmit={updatePassword} className="mt-6 space-y-5">
-                <div className="space-y-1.5">
+            <form onSubmit={updatePassword} className="mt-8 space-y-6">
+                <div className="space-y-2">
                     <InputLabel
                         htmlFor="current_password"
                         value="Current password"
@@ -76,7 +74,7 @@ export default function UpdatePasswordForm({
                     <InputError message={errors.current_password} />
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                     <InputLabel htmlFor="password" value="New password" />
                     <PasswordInput
                         id="password"
@@ -89,7 +87,7 @@ export default function UpdatePasswordForm({
                     <InputError message={errors.password} />
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                     <InputLabel
                         htmlFor="password_confirmation"
                         value="Confirm new password"
@@ -105,10 +103,18 @@ export default function UpdatePasswordForm({
                     <InputError message={errors.password_confirmation} />
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>
-                        {processing ? 'Saving…' : 'Update password'}
-                    </PrimaryButton>
+                <div className="flex items-center gap-5">
+                    <button
+                        type="submit"
+                        disabled={processing}
+                        className="group inline-flex min-h-12 items-center justify-center gap-3 border border-yzh-gold px-5 py-3 font-mono text-xs uppercase tracking-[0.22em] text-yzh-gold transition-colors duration-150 ease-out hover:bg-yzh-gold hover:text-yzh-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold focus-visible:ring-offset-2 focus-visible:ring-offset-yzh-bone disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <span>{processing ? 'Saving' : 'Update password'}</span>
+                        <ArrowUpRight
+                            className="h-4 w-4 transition-transform duration-150 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                            aria-hidden="true"
+                        />
+                    </button>
 
                     <Transition
                         show={recentlySuccessful}
@@ -117,7 +123,9 @@ export default function UpdatePasswordForm({
                         leave="transition ease-in duration-150"
                         leaveTo="opacity-0"
                     >
-                        <p className="text-sm text-yzh-slate">Updated.</p>
+                        <p className="font-mono text-[0.6875rem] uppercase tracking-[0.22em] text-yzh-text">
+                            Updated
+                        </p>
                     </Transition>
                 </div>
             </form>

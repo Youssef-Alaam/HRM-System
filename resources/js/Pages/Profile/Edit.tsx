@@ -14,36 +14,73 @@ function Edit({
         <>
             <Head title="Profile" />
 
-            <div className="space-y-6">
-                <section className="rounded-lg border border-yzh-bone-soft bg-white p-6 shadow-sm sm:p-8">
+            <div className="space-y-14 sm:space-y-20">
+                <Section section="00" label="Identity">
                     <UpdateProfileInformationForm
                         mustVerifyEmail={mustVerifyEmail}
                         status={status}
                         className="max-w-xl"
                     />
-                </section>
+                </Section>
 
-                <section className="rounded-lg border border-yzh-bone-soft bg-white p-6 shadow-sm sm:p-8">
+                <Section section="01" label="Password">
                     <UpdatePasswordForm className="max-w-xl" />
-                </section>
+                </Section>
 
-                <section className="rounded-lg border border-red-200 bg-red-50/40 p-6 shadow-sm sm:p-8">
+                <Section section="02" label="Danger zone" tone="danger">
                     <DeleteUserForm className="max-w-xl" />
-                </section>
+                </Section>
             </div>
         </>
+    );
+}
+
+function Section({
+    section,
+    label,
+    tone = 'default',
+    children,
+}: {
+    section: string;
+    label: string;
+    tone?: 'default' | 'danger';
+    children: ReactNode;
+}) {
+    const ruleClass =
+        tone === 'danger'
+            ? 'border-t border-red-200'
+            : 'border-t border-yzh-bone-soft';
+    const sectionLabelClass =
+        tone === 'danger' ? 'text-red-700' : 'text-yzh-gold';
+
+    return (
+        <section>
+            <div className={`${ruleClass} pt-5`}>
+                <div className="flex items-baseline gap-3">
+                    <span
+                        className={`font-mono text-xs uppercase tracking-[0.24em] ${sectionLabelClass}`}
+                    >
+                        {section}
+                    </span>
+                    <span className="font-mono text-xs uppercase tracking-[0.24em] text-yzh-text">
+                        {label}
+                    </span>
+                </div>
+                <div className="mt-6">{children}</div>
+            </div>
+        </section>
     );
 }
 
 Edit.layout = (page: ReactNode) => (
     <AppLayout
         header={
-            <div className="flex flex-col gap-1">
-                <p className="text-xs uppercase tracking-widest text-yzh-text">
-                    Account
+            <div className="flex flex-col gap-2">
+                <p className="font-mono text-xs uppercase tracking-[0.24em] text-yzh-gold">
+                    P.01 / Account
                 </p>
-                <h1 className="text-2xl font-semibold tracking-tight text-yzh-ink">
-                    Profile
+                <h1 className="text-3xl font-semibold leading-tight tracking-tight text-yzh-ink sm:text-4xl">
+                    Profile.
                 </h1>
             </div>
         }

@@ -1,9 +1,7 @@
-import DangerButton from '@/Components/DangerButton';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import Modal from '@/Components/Modal';
 import PasswordInput from '@/Components/PasswordInput';
-import SecondaryButton from '@/Components/SecondaryButton';
 import { useForm } from '@inertiajs/react';
 import { FormEventHandler, useRef, useState } from 'react';
 
@@ -45,34 +43,38 @@ export default function DeleteUserForm({
 
     return (
         <section className={className}>
-            <header>
-                <h2 className="text-base font-semibold text-red-700">
-                    Delete account
-                </h2>
-                <p className="mt-1 text-sm text-yzh-slate">
-                    Once your account is deleted, all of its data will be
-                    permanently removed. Download anything you want to keep
-                    first.
-                </p>
-            </header>
+            <h2 className="text-xl font-semibold tracking-tight text-red-700">
+                Delete account.
+            </h2>
+            <p className="mt-2 max-w-md text-sm leading-relaxed text-yzh-slate">
+                Once your account is deleted, all of its data will be removed.
+                Download anything you want to keep first.
+            </p>
 
-            <div className="mt-6">
-                <DangerButton onClick={() => setConfirming(true)}>
+            <div className="mt-8">
+                <button
+                    type="button"
+                    onClick={() => setConfirming(true)}
+                    className="group inline-flex min-h-12 items-center justify-center gap-3 border border-red-500 px-5 py-3 font-mono text-xs uppercase tracking-[0.22em] text-red-700 transition-colors duration-150 ease-out hover:bg-red-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-yzh-bone"
+                >
                     Delete account
-                </DangerButton>
+                </button>
             </div>
 
             <Modal show={confirming} onClose={closeModal}>
-                <form onSubmit={deleteUser} className="p-6">
-                    <h2 className="text-base font-semibold text-yzh-ink">
-                        Are you sure?
+                <form onSubmit={deleteUser} className="p-6 sm:p-8">
+                    <p className="font-mono text-xs uppercase tracking-[0.24em] text-red-700">
+                        Confirm
+                    </p>
+                    <h2 className="mt-3 text-2xl font-semibold tracking-tight text-yzh-ink">
+                        Delete your account.
                     </h2>
-                    <p className="mt-2 text-sm text-yzh-slate">
+                    <p className="mt-3 text-sm leading-relaxed text-yzh-slate">
                         This permanently deletes your account and all
                         associated data. Enter your password to confirm.
                     </p>
 
-                    <div className="mt-6 space-y-1.5">
+                    <div className="mt-6 space-y-2">
                         <InputLabel
                             htmlFor="password"
                             value="Password"
@@ -92,13 +94,21 @@ export default function DeleteUserForm({
                         <InputError message={errors.password} />
                     </div>
 
-                    <div className="mt-6 flex justify-end gap-3">
-                        <SecondaryButton onClick={closeModal} type="button">
+                    <div className="mt-8 flex items-center justify-end gap-3">
+                        <button
+                            type="button"
+                            onClick={closeModal}
+                            className="inline-flex min-h-11 items-center justify-center px-4 py-2 font-mono text-xs uppercase tracking-[0.22em] text-yzh-slate transition-colors duration-150 ease-out hover:text-yzh-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold rounded"
+                        >
                             Cancel
-                        </SecondaryButton>
-                        <DangerButton disabled={processing}>
-                            {processing ? 'Deleting…' : 'Delete account'}
-                        </DangerButton>
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className="inline-flex min-h-11 items-center justify-center gap-3 border border-red-500 px-4 py-2 font-mono text-xs uppercase tracking-[0.22em] text-red-700 transition-colors duration-150 ease-out hover:bg-red-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {processing ? 'Deleting' : 'Delete account'}
+                        </button>
                     </div>
                 </form>
             </Modal>
