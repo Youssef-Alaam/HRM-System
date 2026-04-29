@@ -113,4 +113,17 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Handoff digest recipient
+    |--------------------------------------------------------------------------
+    |
+    | Email address that receives the build-progress digest from
+    | `php artisan handoff:send` and the GitHub Actions 5:30am Cairo cron.
+    | Override on the command line via `--email=...` if needed.
+    |
+    */
+
+    'handoff_recipient' => env('HANDOFF_RECIPIENT'),
+
 ];

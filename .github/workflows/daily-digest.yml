@@ -1,0 +1,73 @@
+name: Daily handoff digest
+
+# Fires at 5:30 AM Cairo time (UTC+2, no DST since 2014).
+# Walid reads the digest on his phone at the gym in the morning.
+on:
+  schedule:
+    - cron: '30 3 * * *'   # 03:30 UTC = 05:30 Cairo
+  workflow_dispatch:        # Manual trigger button on GitHub Actions UI
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Need ~30 commits of history for the digest. Default fetch-depth
+          # is 1 (just the tip), which would give an empty git log window.
+          fetch-depth: 50
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: none
+
+      - name: Install Composer deps (no-dev, no-scripts)
+        run: composer install --prefer-dist --no-progress --no-dev --no-scripts --optimize-autoloader
+
+      - name: Configure environment for mail
+        env:
+          MAIL_MAILER: smtp
+          MAIL_HOST: smtp.gmail.com
+          MAIL_PORT: 587
+          MAIL_SCHEME: tls
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_FROM_ADDRESS: ${{ secrets.MAIL_FROM_ADDRESS }}
+          MAIL_FROM_NAME: 'YZH HR'
+          HANDOFF_RECIPIENT: ${{ secrets.HANDOFF_RECIPIENT }}
+          APP_KEY: ${{ secrets.APP_KEY }}
+          APP_ENV: production
+          APP_DEBUG: 'false'
+          # SQLite is fine — the digest command doesn't touch the DB,
+          # but Laravel needs a valid connection config to boot.
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+        run: |
+          cp .env.example .env
+          # Override the .env values that come from secrets above
+          {
+            echo "MAIL_MAILER=$MAIL_MAILER"
+            echo "MAIL_HOST=$MAIL_HOST"
+            echo "MAIL_PORT=$MAIL_PORT"
+            echo "MAIL_SCHEME=$MAIL_SCHEME"
+            echo "MAIL_USERNAME=$MAIL_USERNAME"
+            echo "MAIL_PASSWORD=$MAIL_PASSWORD"
+            echo "MAIL_FROM_ADDRESS=$MAIL_FROM_ADDRESS"
+            echo "MAIL_FROM_NAME=$MAIL_FROM_NAME"
+            echo "HANDOFF_RECIPIENT=$HANDOFF_RECIPIENT"
+            echo "APP_KEY=$APP_KEY"
+            echo "APP_ENV=$APP_ENV"
+            echo "APP_DEBUG=$APP_DEBUG"
+            echo "DB_CONNECTION=$DB_CONNECTION"
+            echo "DB_DATABASE=$DB_DATABASE"
+          } >> .env
+          touch database/database.sqlite || true
+
+      - name: Send the digest
+        run: php artisan handoff:send --since=24h
