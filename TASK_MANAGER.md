@@ -43,7 +43,7 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 - [x] App loads at localhost (welcome page + Breeze auth pages all serve 200)
 - [x] Hot reload works (Vite dev server)
 - [x] `tsconfig.json` strict mode enabled
-- [x] Prettier configured (Breeze ships it); ESLint pending separate config
+- [x] Prettier + ESLint configured (`npm run lint` / `npm run lint:fix`)
 - [x] `.env.example` checked in, `.env` gitignored
 - [x] First commit made
 
