@@ -9,6 +9,27 @@
   --font-sans:
     Figtree, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
     'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+  /* YZH brand palette — sourced from yzhsolutions.com */
+  --color-yzh-gold: #d0a946;
+  --color-yzh-gold-50: #fbf6e6;
+  --color-yzh-gold-100: #f4e8b8;
+  --color-yzh-gold-200: #ecd683;
+  --color-yzh-gold-300: #e2c14d;
+  --color-yzh-gold-400: #d8b32f;
+  --color-yzh-gold-500: #d0a946;
+  --color-yzh-gold-600: #a3852f;
+  --color-yzh-gold-700: #76601f;
+  --color-yzh-gold-800: #4d3f12;
+  --color-yzh-gold-900: #2a220a;
+
+  --color-yzh-ink: #121212;
+  --color-yzh-ink-soft: #1c1d20;
+  --color-yzh-ink-mute: #33373d;
+  --color-yzh-slate: #54595f;
+  --color-yzh-text: #7a7a7a;
+  --color-yzh-bone: #eff0f1;
+  --color-yzh-bone-soft: #dee1e7;
 }
 
 /*
