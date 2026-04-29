@@ -4,7 +4,6 @@ import {
     Building2,
     Calendar,
     CalendarClock,
-    ChevronDown,
     ClipboardList,
     Clock,
     FileText,
@@ -379,7 +378,6 @@ function UserMenu({
                             {user.role ?? 'no role'}
                         </span>
                     </span>
-                    <ChevronDown className="hidden lg:block h-4 w-4 opacity-60" />
                 </button>
             </Dropdown.Trigger>
             <Dropdown.Content align="right">
