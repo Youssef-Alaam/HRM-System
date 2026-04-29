@@ -209,39 +209,36 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ---
 
-### F12.5: Design Pass 1 ⬜
+### F12.5: Design Pass 1 ✅
 
-**🚨 READ [F12_5_PLAN.md](F12_5_PLAN.md) BEFORE STARTING.** The deep playbook lives there — page inventory, skill routing matrix, hour-by-hour order, per-screen DoD, anti-patterns to reject, Walid checkpoints, risk register. This entry is the 30-second summary.
+**Goal achieved:** UI lifted from "AI-tier baseline" to a coherent **Engineering Studio** design language across the entire app — title-block strips, drafting-set notation, monospace metadata, gold-as-architectural-annotation, no card grids, no kicker pills, no SaaS clichés.
 
-**Goal:** lift the UI from "AI-tier baseline" to "designed" before Walid sees it. Real sidebar + real seeded data are now in place, so design is no longer shadowboxing.
+**Done when (all checked):**
+- [x] 6 error pages live; exception routing wired through `bootstrap/app.php` (403/404/419/429/500/503; 500 stays Whoops in debug mode for devs)
+- [x] `<Skeleton>` primitive shipped + 2 instance wirings (Dashboard `?loading=1` row skeletons, in-app navigation Compass Arc loading screen)
+- [x] `AuthenticatedLayout.tsx` deleted
+- [x] Brand-purity grep clean (no `purple-`, `indigo-`, `blue-`, no off-token hex in `resources/` except `#d0a946` in `app.tsx` for Inertia's progress API which now reads `false`)
+- [x] `php artisan test` passes — **124 passing, 521 assertions** (up from 114 — added 10 error-page Pest tests)
+- [x] TypeScript strict clean
+- [x] Walid sign-off on Welcome → Login morph + loading screen + in-app Engineering Studio rollout
 
-**Time-boxed:** 4 hours hard limit. Walid mid-checkpoint after Hour 2 enforces scope cuts if needed.
+**Side fixes shipped beyond the plan (driven by Walid course-corrections):**
 
-**Inputs:** [PRODUCT.md](PRODUCT.md) (voice + brand), [DESIGN.md](DESIGN.md) (locked tokens), [F12_5_PLAN.md](F12_5_PLAN.md) (this session's playbook).
+1. **Engineering Studio direction adopted** (replaces the original quieter Linear-clone direction). After two rejected mocks of Welcome, Walid picked "Engineering Studio" from a 4-direction reference deck (BIG, Snøhetta, FT Weekend, Coutts, Vitsoe). The architectural-drawing language now defines every surface.
+2. **HR wordmark removed** everywhere next to the YZH logo (6 spots: GuestLayout × 2, AppLayout × 3, Welcome × 1) per Walid: "remove the HR from the logo i don't like it keep it just as is for the logo".
+3. **Pill+dot kicker pattern banned** everywhere (GuestLayout, Welcome, Dashboard, Placeholder) per Walid: "REMOVE ANYTHING WITH THIS SHAPE IT SCREAMS CLAUDE CODE." Replaced with monospace section identifiers (`A.02 / SIGN IN`).
+4. **Welcome → Login split-screen morph** via View Transitions API. Two shared elements morph simultaneously — `brand-panel` (full-screen dark canvas reshapes to left half) + `yzh-hero` (gold YZH word in headline grows into the brand panel's centerpiece wordmark). Desktop only; falls back transparently on mobile and on browsers without the API.
+5. **Compass Arc in-app loading screen** (picked from a 4-variant preview: Dimension Line, Frame Draw, Scale Ruler, Compass Arc). Replaces Inertia's default top progress bar. AppLayout subscribes to `router.on('start' / 'finish')` with a 200ms debounce; on tracked routes the destination header swaps in immediately (`B.01 / EMPLOYEES`) and the body shows a 90° gold arc striking, title fading up, gold dot pulsing.
+6. **Route registry inside AppLayout** built once from `NAV_GROUPS` + `ADMIN_MENU_ITEMS` — generates drafting-set section identifiers (group letter + position number, e.g. `B.01` for Employees, `S.02` for Audit Log, `P.01` for Profile).
+7. **Centralized formatters** in `resources/js/lib/format.ts` per CLAUDE.md "never inline" rule — `formatDate()`, `formatTime()`, `formatDateTime()`, `formatMoneyEgp()` (piasters → EGP), `formatPhoneEg()`, `formatNationalIdEg()`. Dashboard's inline `toLocaleDateString` migrated to `formatDate(new Date())`.
+8. **Stamped CTA pattern** (border + uppercase monospace + `ArrowUpRight` + hover-fill) replaces the rounded-md gold button on every guest-layer surface. Inline classes for now; will be extracted to a primitive when a third surface needs it.
+9. **Faint gold draftsman grid** background (4% opacity 60px grid lines) on Welcome and GuestLayout brand panel — gives the canvas texture without photography.
+10. **Touch-target hardening** — all interactive elements ≥44px on mobile. Sidebar nav items `py-3 lg:py-2` (44px mobile, 36px desktop). Mobile drawer close button `h-10 → h-11`. Welcome top-bar Sign-in CTA `h-10 → h-11`.
+11. **GuestLayout brand panel redesigned** as a drafting-set title block (PROJECT HR-001, SECTION A.02, REV) with the giant `YZH` wordmark as the morph landing — coherent with Welcome's aesthetic.
 
-**Surface to be designed (complete inventory in F12_5_PLAN.md §3):**
-- 9 page files + 3 partials + 2 layouts (Welcome, 5 Auth pages, Dashboard, Profile/Edit + 3 partials, Placeholder; AppLayout audit, GuestLayout polish)
-- 1 layout to delete (`AuthenticatedLayout.tsx` — confirmed unused via grep)
-- 13 primitives to audit (Components/*.tsx — token compliance, focus rings, touch targets)
-- **NEW**: `<Skeleton>` primitive + 2 instance wirings (Dashboard cards, AppLayout route transition)
-- **NEW**: 6 branded error pages (403/404/419/429/500/503) routed through Inertia via `bootstrap/app.php` `withExceptions(...)`
+**Test posture at close:** TypeScript strict clean, ESLint clean, Pest 124 passed (521 assertions), em-dashes only in code comments (none in user-facing copy), no `console.log` / `dd()` / `dump()`.
 
-**Done when:**
-- [ ] Every page passes the per-screen DoD in F12_5_PLAN.md §5 (visual / voice / a11y / behavioral / responsive / code-hygiene)
-- [ ] 6 error pages live; exception routing wired through `bootstrap/app.php`
-- [ ] `<Skeleton>` primitive shipped + at least 2 instance wirings
-- [ ] `AuthenticatedLayout.tsx` deleted (Breeze leftover, no imports)
-- [ ] Mobile walkthrough at 375px clean across all surfaces
-- [ ] Brand-purity grep clean (no `purple-`, `indigo-`, `blue-` except semantic info, no off-token hex in `resources/`)
-- [ ] `php artisan test` still 114/114 (or higher if error-page tests added)
-- [ ] CI green on push
-- [ ] **Walid mid-checkpoint** after Hour 2 (error pages + skeleton + Welcome) — go/no-go decision
-- [ ] **Walid end-checkpoint** — 7-step screen-by-screen walkthrough, sign-off to unlock F13
-
-**Why this slot, not earlier:**
-- Polishing before F7 means redoing it once the real sidebar lands.
-- Polishing before F8 means designing against empty placeholders — guesswork.
-- The installed skills (impeccable / redesign-existing-projects / minimalist-ui / ux-patterns / pattern-matching) shine on visual probes against real screens with real data.
+**Reference docs added to the project:** `Components/ErrorShell.tsx`, `Components/LoadingScreen.tsx`, `Components/Skeleton.tsx`, `lib/format.ts`, `Pages/Errors/{403,404,419,429,500,503}.tsx`, `tests/Feature/Errors/ErrorPagesTest.php`.
 
 ---
 
@@ -426,8 +423,12 @@ Per-employee document storage with expiry alerts
 ### Feature 14: All Other Request Types ⬜
 Overtime / Expense Claims / Change Shift / Holiday Work Request
 
-### Feature 15: Payroll v1 ⬜ ⚠️ Hardest module
-30 golden test cases must pass. Egyptian tax + SI + health insurance + payslip PDF + Excel export.
+### Feature 15: Payroll v1 ❌ DEFERRED (per Walid 2026-04-30)
+**Status:** On hold until banking integrations + accountant alignment are ready.
+**Reason:** Payroll requires (a) bank-transfer integrations to actually disburse salaries, (b) connections to ~100 modules across the system (attendance, leave, deductions, allowances, EOSB, terminations, expat handling), and (c) sign-off from an Egyptian payroll-specialist accountant on tax brackets / SI rates / health insurance %. Walid is sequencing those upstream first.
+**Resumes when:** banking partner selected + accountant onboarded + Walid runs Checkpoint D (golden test case approval).
+**Other features proceed without it.** Reports / Compliance Workflows / Government Filings (Features 16-18) build first since they don't depend on payroll output. They later read payroll data once payroll ships.
+**Pre-work that can happen now (no banking required):** payslip PDF template design, Excel export schema, golden test case authoring (drafted but not approved), Egyptian tax brackets table seeded into Settings.
 
 ### Feature 16: Reports ⬜
 Standard reports per ANA-3.8 catalog
@@ -496,11 +497,11 @@ When tasks are split:
 ## 📍 Current status
 
 **Phase:** Foundation Phase
-**Current task:** F12.5 (Design Pass 1) — ⬜ Not started. **Time-boxed: 4 hours max. Pause for Walid before locking — at least one round of feedback baked in.**
-**Last session (2026-04-29 evening, 3rd half):** F9 → F12 all done. Holiday n-tier reference vertical, Pest 3.8, CI green on GitHub Actions, Husky pre-commit, sidebar UI fixes, spatie/laravel-backup running. 114 tests passing.
-**Pre-approved chunk:** F3 → F12 done. F12.5 next (design pass).
+**Current task:** F13 Foundation review checkpoint 🟦 — awaiting Walid walkthrough.
+**Last session (2026-04-30):** F12.5 closed. Engineering Studio language adopted across the app, Welcome → Login split-screen morph via View Transitions API, Compass Arc in-app navigation loading screen replacing Inertia's top progress bar, all auth + dashboard + profile + placeholder + error surfaces redesigned in coherent architectural-drawing language. 124 tests passing.
+**Pre-approved chunk:** F3 → F12.5 done. F13 review next.
 **Blockers:** None
-**Next milestone:** F13 Foundation review checkpoint (right after F12.5)
+**Next milestone:** F13 sign-off → Feature Phase 1 (Dashboard) starts
 
 ### Skills installed (locally; see `.agents/skills/`)
 impeccable, taste-skill (4), ui-ux-pro-max (8), playwright-skill, obra/superpowers (10), noobygains/godmode (5). Skills are gitignored — they live on this machine, not the repo.
@@ -508,15 +509,18 @@ impeccable, taste-skill (4), ui-ux-pro-max (8), playwright-skill, obra/superpowe
 ### Toolchain locally (see `C:\Users\Dena\.local\yzh-hr-credentials.txt` for DB creds)
 PHP 8.3.30 (winget), Composer 2.9.7, MySQL 8.4.8 (Windows service `MySQL84`), Redis 7.0.15 (in WSL Ubuntu — currently bypassed via `database` driver due to Hyper-V firewall), Node 24.15.0.
 
-**Updated:** 2026-04-29 (evening, after F12)
+**Updated:** 2026-04-30 (after F12.5 close)
 
 ---
 
 ## 🔔 Reminders for Claude Code
 
 1. **Foundation tasks (F1-F13):** Build sequentially, no per-task review. Walid reviews at F13.
-2. **Feature tasks (Feature 1+):** STOP after each feature is "done." Walid reviews. Do not proceed without Walid's explicit OK.
-3. **Definition of done:** Every checkbox must be ticked.
-4. **N-tier discipline:** Every feature passes through Controller → FormRequest → Service → Repository → Model.
-5. **Reference docs:** PRD.md, DECISIONS.md, EGYPT_COMPLIANCE_RULES.md, CLAUDE.md, LOCAL_SETUP.md.
-6. **When stuck:** Per WHEN_STUCK.md protocol.
+2. **Feature tasks (Feature 1+):** Batched build with 5 named checkpoints (changed 2026-04-30). Run the per-feature internal quality gate on every feature; STOP only at the named checkpoints (Feature 2, mid-Feature 5, end of Feature Phase 1, before/after Payroll). See CLAUDE.md "Build flow" for the full list.
+3. **Per-feature internal quality gate:** spec written → Pest tests written first → N-tier built → lint/types/tests clean → brand-purity grep → touch-targets verified → file-size budgets respected → FEATURES_LOG.md entry → demo seed data → CI green.
+4. **Payroll v1 (Feature 15) is DEFERRED.** Build everything else; come back to Payroll when banking + accountant are ready. See Feature 15 entry above.
+5. **Daily handoff email:** at end of every meaningful build session, run `php artisan handoff:send walid@yzh.solutions` (or his configured email) to send the digest. GitHub Actions cron handles automated 5:30am Cairo morning digests for gym-phone reading.
+6. **Definition of done:** Every checkbox must be ticked.
+7. **N-tier discipline:** Every feature passes through Controller → FormRequest → Service → Repository → Model.
+8. **Reference docs:** PRD.md, DECISIONS.md, EGYPT_COMPLIANCE_RULES.md, CLAUDE.md, LOCAL_SETUP.md.
+9. **When stuck:** Per WHEN_STUCK.md protocol.

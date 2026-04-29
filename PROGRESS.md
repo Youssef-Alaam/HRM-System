@@ -295,4 +295,124 @@ Solid sprint. Foundation phase is 8/13 done, and the pieces that remain (F9-F13)
 ### Mood / energy
 Big day. Foundation infra is done — every Feature Phase task from here on out has a paved road: n-tier scaffolding to copy from, Pest to write tests in, CI to enforce green, backups running. The remaining non-feature work is design polish (F12.5) + Walid review (F13). After that, real product features start.
 
+---
+
+## Session 2026-04-30 — F12.5 Design Pass 1 closed
+
+### What got done
+
+**Hour 1 — Error pages + exception routing**
+- `bootstrap/app.php` `withExceptions(...)` hook routes 403/404/419/429/503 through `Inertia::render('Errors/{code}')` always, and 500 only when `app.debug` is false (devs keep Whoops/Ignition for stack traces locally). JSON requests pass through untouched.
+- 6 page files: `Pages/Errors/{403,404,419,429,500,503}.tsx`. Share a `Components/ErrorShell.tsx` wrapper inside `GuestLayout`. 503 consumes the `Retry-After` response header and humanizes ("Back in about 2 minutes").
+- 10 Pest tests (`tests/Feature/Errors/ErrorPagesTest.php`) verifying exception → Inertia render mapping, the debug-on-keeps-Whoops path, the JSON-passthrough path, and the `retryAfter` prop. Total: 114 → 124. Zero regressions.
+
+**Hour 2 — Skeleton + Welcome rejected**
+- `Components/Skeleton.tsx` shipped (base + `SkeletonCard`, `SkeletonText`, `SkeletonRow`). `motion-safe:animate-pulse`, `role="status" aria-live="polite"`. Wired on Dashboard via `?loading=1` route hook.
+- `lib/format.ts` shipped — centralized formatters (`formatDate`, `formatTime`, `formatDateTime`, `formatMoneyEgp`, `formatPhoneEg`, `formatNationalIdEg`) per CLAUDE.md "never inline" rule.
+- Welcome polish iter #1 — dropped 6-card grid, em-dashes, secondary CTA. **Rejected by Walid**: "the design for the welcome is sub bar."
+
+**Hour 3 — Auth + Dashboard + Profile (surgical first pass)**
+- 4 auth pages: em-dash → period, "please confirm" → "confirm", `←` → lucide `ArrowLeft`, header spacing parity.
+- Dashboard's inline `toLocaleDateString` migrated to `formatDate(new Date())`.
+- Profile audited; already token-clean.
+
+**Hour 4 — Placeholder + Layouts + Final sweep**
+- Placeholder polished — dropped Construction icon, contextual title in body, soft amber state pill, back link.
+- AppLayout: sidebar `duration-200 → motion-safe:duration-300 ease-out`; nav items `py-2 → py-3 lg:py-2` (44px mobile); mobile drawer close `h-10 → h-11`.
+- `AuthenticatedLayout.tsx` deleted (Breeze leftover, zero imports).
+- Brand-purity grep clean, em-dashes only in code comments, all touch targets ≥44px on mobile, 0 `console.log`/`dd()`/`dump()`.
+
+### Course corrections (3 rounds of Walid redirects)
+
+**Round 1 — Welcome direction.** Walid rejected the quieter Linear-clone direction with: *"put some life into all the designs. don't start creating gather some references first and show me."* I presented 4 directions with named real-world refs:
+- Engineering Studio (BIG, Snøhetta, OMA)
+- Editorial Newspaper (FT Weekend, Are.na, Pentagram)
+- Heritage Institution (Coutts, Pictet, Lazard)
+- Industrial Material (Vitsoe, Kvadrat, 2x4)
+
+Walid picked **Engineering Studio**.
+
+**Round 2 — Welcome rebuild.** First Engineering Studio mock used a `YZH/HR` slash-treatment hero. Walid: *"i still don't like the welcome page. use all the design skills. it doesn't have to be this in the hero YZH/HR suggest something else."* Rebuilt as the architectural-drawing composition:
+- Top + bottom title-block strips with monospace metadata (`PROJECT HR-001 / CLIENT YZH SOLUTIONS / ISSUED 2026 / REV A`)
+- Warm declarative headline `For the people who build YZH.` (gold YZH only, period outside the morphing span)
+- Faint 60px gold drafting grid background (4% opacity)
+- SVG scale ruler decoration on the left rail
+- Stamped CTA (border + arrow, hover-fill) — not a pill
+
+**Approved.**
+
+**Round 3 — HR wordmark + pill kicker bans.** Walid: *"remove the HR from the logo i don't like it"* + *"REMOVE ANYTHING WITH THIS SHAPE IT SCREAMS CLAUDE CODE"* (the rounded-full + dot + uppercase tracking-widest pill kicker pattern). Stripped HR wordmark in 6 places, pill kicker in 4 places. Replaced with monospace section identifiers (`A.02 / SIGN IN`).
+
+### View Transitions API + shared element morph
+
+Walid asked: *"can we have a split screen morph transition instead of loading in a new page?"* and then: *"how about something from the hero turning into the left side of the split. Like YZH turning into its full form."*
+
+Implemented as **two simultaneous shared-element morphs** via the View Transitions API:
+- **`brand-panel`**: Welcome's full-screen dark canvas + GuestLayout's left aside share `view-transition-name: brand-panel`. On Sign-in click, the canvas reshapes from full-screen to left-half over 600ms ease-out-quart `cubic-bezier(0.16, 1, 0.3, 1)`.
+- **`yzh-hero`**: gold "YZH" word in the headline + gold YZH wordmark in the brand panel share `view-transition-name: yzh-hero`. The word travels + grows from inline-in-headline to brand-panel centerpiece. Period stays outside the span so cross-fade is exact text "YZH" → "YZH".
+- Sign-in click handler wraps `router.visit()` in `document.startViewTransition()`. Falls back to default Inertia nav on browsers without the API. Desktop only (`@media (min-width: 1024px)` gate on the `.vt-*` classes). `prefers-reduced-motion` disables both.
+- Brand panel redesigned to land the morph: title-block strip with PROJECT/CLIENT/SECTION/REV metadata, giant `YZH` wordmark (text-7xl, text-8xl on xl), supporting copy below, monospace footer.
+
+### Compass Arc loading screen (replaces Inertia top progress bar)
+
+Walid asked for a destination title + thematic animation in the page body instead of the yellow top progress bar.
+
+**Variant review.** Built 4 variants (Dimension Line, Frame Draw, Scale Ruler, Compass Arc), wired temporarily onto `/employees`, `/departments`, `/positions`, `/offices` so each route demoed a different variant on infinite loop. Walid picked **Compass Arc**.
+
+**Production wiring:**
+- 3 unused variants + demo preview page deleted; 4 sidebar routes reverted; unused keyframes removed.
+- `app.tsx`: `progress: false`. Yellow top bar gone.
+- `Components/LoadingScreen.tsx`: 90° gold arc striking via SVG `stroke-dashoffset` over 1000ms; reference cross fades in first; section kicker + title fade up; gold dot pulses next to "Loading".
+- `AppLayout.tsx`: route registry built once at module load from `NAV_GROUPS` + `ADMIN_MENU_ITEMS` — generates drafting-set section identifiers (`B.01` for Employees, `S.02` for Audit Log, `P.01` for Profile).
+- `useEffect` subscribes to `router.on('start' / 'finish')` with 200ms debounce. On 'start' (after debounce): sets `navigatingTo`. On 'finish': clears it. Cleanup on unmount.
+- During navigation: top header swaps to `<NavigatingHeader>` (kicker + title); main content renders `<LoadingScreen>`.
+- 200ms debounce makes the loading screen invisible on fast localhost loads. To preview, throttle DevTools Network → "Slow 4G".
+
+### Engineering Studio rollout (final round)
+
+After Welcome + brand panel + loading screen carried the language, the remaining surfaces still felt like a different app. Final refactor:
+- **5 auth pages**: kicker `A.0X / FUNCTION` (mono gold), display-weight title with period, stamped CTA, monospace footer.
+- **Dashboard**: drawing-index list (numbered `00` Status, `01` Drawing index) with thin keyline dividers — replaces the 4-card grid (impeccable absolute ban).
+- **Profile/Edit + 3 partials**: 3 numbered sections (`00` Identity, `01` Password, `02` Danger zone in red), keyline dividers replace the white cards, stamped CTAs throughout. Delete-account modal redesigned.
+- **Placeholder**: thin keyline, monospace section header (`STATUS / COMING SOON`), title with period, monospace metadata.
+- **`Components/ErrorShell.tsx`**: kicker reformatted to `ERROR / 404 / NOT FOUND`, stamped CTA matches the rest. All 6 error pages inherit.
+
+### Verification at close
+- TypeScript strict: clean
+- ESLint: clean
+- Pest: **124 passed, 521 assertions** (+10 from 114)
+- Brand-purity grep: 0 hits on `purple-`, `indigo-`, `bg-blue-`, `text-blue-`, `border-blue-`
+- User-facing em-dashes: 0 (only in code comments, which aren't "copy" per impeccable)
+- Off-token hex: 0 (the `#d0a946` formerly in `app.tsx` is now in a comment since `progress: false`)
+- Touch targets ≥44px on mobile: verified
+
+### Decisions made this session
+- **Engineering Studio adopted as the YZH-HR design language.** Architectural-drawing motifs — title blocks, drafting-set notation, monospace metadata, faint grids, slashes-as-separators, periods on declarative titles, gold-as-architectural-annotation. Anti-references: Linear/Notion/Stripe + the AI-tic pill+dot kicker.
+- **Compass Arc as the standard in-app loading screen.** Picked from a 4-variant blind compare.
+- **View Transitions API for the Welcome → Login morph.** Two shared elements (`brand-panel` + `yzh-hero`). Desktop-gated; transparent fallback elsewhere.
+- **Stamped CTA pattern for the guest layer.** Inline Tailwind classes. Will extract to `<StampedButton>` / `<StampedLink>` primitive when an 11th surface needs it.
+- **Drafting-set route identifiers** derived programmatically from `NAV_GROUPS` order. Used by both the loading-screen kicker and the destination header swap.
+- **`?loading=1` query hook on `/dashboard`** is a temporary demo hook for the skeleton row state. Removed once the dashboard wires real async data in Feature Phase.
+
+### Caveats / open
+- The route registry duplicates label data from `NAV_GROUPS` + `ADMIN_MENU_ITEMS` inside `AppLayout.tsx`. Today they live in the same file so it's fine; if/when the sidebar config moves out, the registry rebuilds from the same source.
+- Stamped CTA inline classes are repeated across ~10 surfaces. No primitive extracted yet — wait for the 11th instance.
+- Mobile preview not exhaustively walked at 375px on every redesigned surface. Touch-target sweep was structural (component-level), not page-by-page. Recommend a focused mobile pass during/after F13.
+- View Transitions API doesn't fire on Inertia back/forward (cached pages return too fast for the debounce). Acceptable; the morph is for forward navigation moments.
+- Loading screen's section identifiers (e.g. `B.01`) only resolve for routes in `NAV_GROUPS` / `ADMIN_MENU_ITEMS` / `/profile`. Routes outside the registry (e.g., a future `/admin/holidays/{id}/edit`) get no loading screen — falls through to no-op.
+
+### Lessons
+- **Auto-mode is for execution, not design judgment.** When Walid course-corrected the Welcome twice, the right move was to slow down, gather references, present options. The skill `intent-discovery` was on the menu the whole time and got skipped on the first pass; using it would have saved one rejected mock.
+- **The pill+dot kicker IS a Claude/Linear tic.** Walid's "REMOVE ANYTHING WITH THIS SHAPE IT SCREAMS CLAUDE CODE" was correct. The pattern (rounded-full + colored dot + uppercase tracking-widest) is a tell. Future YZH-HR work should reach for monospace section identifiers instead.
+- **View Transitions API is production-ready in 2026.** Chrome 111+, Safari 18+, Firefox 132+. The shared-element morph is one CSS property and a `document.startViewTransition()` callback. The hardest part is wiring it correctly with Inertia's navigation lifecycle.
+- **Drafting-set notation (`B.01`) is more honest than `01.` or `Section 01`.** It encodes a group letter + position number — real to an engineering & contracting firm head, not decorative.
+- **Throttle DevTools to demo loading states.** Don't add a "demo mode" min-duration to production code. The 200ms debounce stays at 200ms; user throttles their own connection to test.
+- **Comments aren't "copy".** The em-dash ban applies to user-visible strings only. Internal `// description — explanation` comments are fine.
+
+### Tomorrow / next session
+- **F13 Foundation review checkpoint.** Walid runs the walkthrough checklist in TASK_MANAGER.md F13 entry. Sign-off unlocks Feature Phase 1 (Dashboard).
+
+### Mood / energy
+Long session, multiple design pivots, three rounds of Welcome rebuilds, four loading-screen variants compared. Ended at a coherent design language across the entire app — every surface speaks the same architectural-drawing vocabulary. Engineering Studio direction is locked. Compass Arc loading screen is locked. Welcome → Login morph lands. Next session is Walid running F13 acceptance, then real product features start.
+
 

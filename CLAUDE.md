@@ -70,12 +70,24 @@ public function calculateAnnualLeave(Employee $employee): int { ... }
 `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`, `test:`, `compliance:`
 
 ## Build flow
-1. **Foundation Phase (F1-F12 in TASK_MANAGER.md):** sequential, no per-task review
+1. **Foundation Phase (F1-F12.5 in TASK_MANAGER.md):** sequential, no per-task review
 2. **F13 Foundation review:** wait for Walid approval
-3. **Feature Phase:** ONE feature at a time, Walid reviews each, then next
+3. **Feature Phase: batched build with 5 named checkpoints** (changed 2026-04-30 per Walid). Build features in spec order; Walid reviews at named moments instead of after every feature. Checkpoints:
+   - **Checkpoint A:** after Feature 2 (Employees) — pattern lock validation (~15 min Walid time)
+   - **Checkpoint B:** mid-Feature 5 (Attendance) — face-recognition thresholds + selfie retention sign-off
+   - **Checkpoint C:** end of Feature Phase 1 (Features 1-8 done) — full sidebar walkthrough (~1 hr)
+   - **Checkpoint D:** before Payroll v1 — golden test cases approval (deferred, see below)
+   - **Checkpoint E:** after Payroll v1 — math verification (deferred)
+4. **Per-feature internal quality gate** (no Walid review) — every feature passes: spec written, Pest tests written first, N-tier built, lint + types + tests + brand-purity + touch-targets + file-size budgets clean, FEATURES_LOG.md entry, demo seed data, CI green.
 
-**Do NOT proceed past Foundation Phase F13 without Walid's explicit approval.**
-**Do NOT build multiple Feature Phase tasks in parallel.**
+**Payroll v1 (Feature 15) is DEFERRED** as of 2026-04-30 per Walid: requires bank transfer integrations + accountant input + multiple cross-module connections. Resumes when banking partners + Egyptian payroll-specialist accountant are aligned. All other Feature Phase work proceeds in parallel.
+
+**Build all Feature Phase tasks except Payroll** before resuming Payroll. Reorder: Reports (Feature 16), Compliance Workflows (Feature 17), Government Filings (Feature 18) come before Payroll despite their numbers — they don't depend on it.
+
+**Do NOT skip the 5 named checkpoints.** Each is a hard gate where Walid approval is required before continuing past it.
+
+## Daily handoff email
+Walid reads progress on his phone in the morning at the gym. After every meaningful build session, run `php artisan handoff:send {email}` to email a digest (commits, features touched, tests count, demo URLs, what's next). For automated overnight digests, GitHub Actions cron runs at 5:30am Cairo time and sends the same digest. Mail goes through Gmail SMTP via App Password (`MAIL_*` env vars in `.env`).
 
 ## When stuck
 1. 2hrs: `/clear` and try fresh prompt
