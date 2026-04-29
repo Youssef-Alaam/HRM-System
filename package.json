@@ -5,7 +5,17 @@
         "build": "tsc && vite build",
         "dev": "vite",
         "lint": "eslint resources/js",
-        "lint:fix": "eslint resources/js --fix"
+        "lint:fix": "eslint resources/js --fix",
+        "prepare": "husky",
+        "typecheck": "tsc --noEmit"
+    },
+    "lint-staged": {
+        "resources/js/**/*.{ts,tsx}": [
+            "eslint --fix"
+        ],
+        "app/**/*.php": [
+            "./vendor/bin/pint"
+        ]
     },
     "devDependencies": {
         "@headlessui/react": "^2.0.0",
@@ -23,7 +33,9 @@
         "eslint-config-prettier": "^9.1.2",
         "eslint-plugin-react-hooks": "^5.2.0",
         "globals": "^15.15.0",
+        "husky": "^9.1.7",
         "laravel-vite-plugin": "^1.2.0",
+        "lint-staged": "^16.4.0",
         "postcss": "^8.4.31",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
