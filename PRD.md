@@ -61,45 +61,122 @@ Special cases:
 
 ## 3. Permission matrix
 
-| Action | Employee | Manager | HR | Admin |
-|---|---|---|---|---|
-| View own profile | ✓ | ✓ | ✓ | ✓ |
-| Edit own Tier 1 fields (phone, address, emergency contact) | ✓ | ✓ | ✓ | ✓ |
-| Edit own Tier 2 fields (marital, dependents, bank — requires HR approval) | ✗ (request) | ✗ (request) | ✓ direct | ✓ direct |
-| View team members' profiles | ✗ | ✓ (their team) | ✓ | ✓ |
-| Edit any employee | ✗ | ✗ | ✓ | ✓ |
-| Soft delete employee | ✗ | ✗ | ✓ | ✓ |
-| Restore deleted employee | ✗ | ✗ | ✗ | ✓ |
-| Check in/out (own) | ✓ | ✓ | ✓ | ✓ |
-| View team attendance | ✗ | ✓ (their team) | ✓ | ✓ |
-| Edit attendance record | ✗ | ✗ | ✓ | ✓ |
-| Submit leave request | ✓ | ✓ | ✓ | ✓ |
-| Approve own team's leave (Manager step) | ✗ | ✓ | ✓ | ✓ |
-| Final approve leave (HR step) | ✗ | ✗ | ✓ | ✓ |
-| Submit any other request type | ✓ | ✓ | ✓ | ✓ |
-| View all requests | ✗ | ✓ (their team) | ✓ | ✓ |
-| Submit/edit attendance correction | ✓ (own, 24h) | ✓ (own + team) | ✓ | ✓ |
-| Run payroll | ✗ | ✗ | ✓ | ✓ |
-| Lock payroll (state transition) | ✗ | ✗ | ✓ | ✓ |
-| Mark payroll as paid | ✗ | ✗ | ✓ | ✓ |
-| Edit payslip | ✗ | ✗ | ✓ (only when draft) | ✓ |
-| Manage departments / positions | ✗ | ✗ | ✓ | ✓ |
-| Manage offices (add/edit, set GPS radius) | ✗ | ✗ | ✓ | ✓ |
-| Manage holidays | ✗ | ✗ | ✓ | ✓ |
-| Bulk apply holidays | ✗ | ✗ | ✓ | ✓ |
-| Create/disable user accounts | ✗ | ✗ | ✗ | ✓ |
-| Assign roles | ✗ | ✗ | ✗ | ✓ |
-| View audit log | ✗ | ✗ | ✗ | ✓ |
-| Edit settings | ✗ | ✗ | ✗ | ✓ |
-| Run reports | ✗ | ✓ (own team) | ✓ | ✓ |
-| Export data (CSV/Excel/PDF) | ✓ (own) | ✓ (own + team) | ✓ | ✓ |
-| Self-service data export (PDPL) | ✓ (own) | ✓ (own) | ✓ (own) | ✓ (own + others) |
-| Confirm deemed resignation | ✗ | ✗ | ✓ | ✓ |
-| Initiate termination workflow | ✗ | ✗ | ✓ | ✓ |
-| Override foreign worker quota | ✗ | ✗ | ✓ | ✓ |
-| Step-up auth (sensitive actions) | n/a | n/a | required | required |
+> **Updated 2026-04-29 (Cycle 1+ refinement):** moved from a coarse action-per-row table to a granular `{domain}.{action}.{scope}` catalog. Drivers: (a) the upcoming Settings → Staff toggle UI needs many switches, not a few buckets; (b) renaming permissions after they're referenced in middleware/policies/tests is expensive, so be specific now; (c) per-user overrides (grant/revoke on top of role defaults) are now first-class.
 
-**Implementation:** Use Spatie Permission package. Each row above = one permission. Roles aggregate permissions. Middleware on routes: `permission:edit_employees`. Policies on models: `EmployeePolicy::update()` checks both permission + scope (manager only for own team).
+### 3.1 Roles and the "default bundle" model
+
+Each of the four roles (`admin`, `hr`, `manager`, `employee`) is a **default bundle of permissions**. Users inherit their role's permissions but can have additional permissions **directly granted** or **directly revoked** at the user level. Direct grants/revokes always win over role defaults.
+
+This is what enables UI like "this manager has the manager role, but I'm switching off `chat.send` for them specifically" without inventing a new role.
+
+### 3.2 Granular permission catalog
+
+Permissions are named `{domain}.{action}` or `{domain}.{action}.{scope}`. Scope qualifiers: `own` (just me), `team` (people who report to me, transitively), `any` (everyone in org).
+
+| Permission | Employee | Manager | HR | Admin |
+|---|:-:|:-:|:-:|:-:|
+| **employees** | | | | |
+| `employees.view.own` | ✓ | ✓ | ✓ | ✓ |
+| `employees.view.team` | ✗ | ✓ | ✓ | ✓ |
+| `employees.view.any` | ✗ | ✗ | ✓ | ✓ |
+| `employees.edit.own.tier1` (phone, address, emergency contact) | ✓ | ✓ | ✓ | ✓ |
+| `employees.edit.own.tier2` (marital, dependents, bank — HR-approved request) | ✗ | ✗ | ✓ | ✓ |
+| `employees.create` | ✗ | ✗ | ✓ | ✓ |
+| `employees.edit.any` | ✗ | ✗ | ✓ | ✓ |
+| `employees.delete` (soft) | ✗ | ✗ | ✓ | ✓ |
+| `employees.restore` | ✗ | ✗ | ✗ | ✓ |
+| `employees.terminate` | ✗ | ✗ | ✓ | ✓ |
+| `employees.confirm_deemed_resignation` | ✗ | ✗ | ✓ | ✓ |
+| `employees.override_foreign_quota` | ✗ | ✗ | ✓ | ✓ |
+| **attendance** | | | | |
+| `attendance.checkin.own` | ✓ | ✓ | ✓ | ✓ |
+| `attendance.view.own` | ✓ | ✓ | ✓ | ✓ |
+| `attendance.view.team` | ✗ | ✓ | ✓ | ✓ |
+| `attendance.view.any` | ✗ | ✗ | ✓ | ✓ |
+| `attendance.edit.any` | ✗ | ✗ | ✓ | ✓ |
+| `attendance.correct.own` (within 24h) | ✓ | ✓ | ✓ | ✓ |
+| `attendance.correct.team` | ✗ | ✓ | ✓ | ✓ |
+| `attendance.assign_shifts.team` | ✗ | ✓ | ✓ | ✓ |
+| `attendance.assign_shifts.any` | ✗ | ✗ | ✓ | ✓ |
+| **leave** | | | | |
+| `leave.request.own` | ✓ | ✓ | ✓ | ✓ |
+| `leave.view.own` | ✓ | ✓ | ✓ | ✓ |
+| `leave.view.team` | ✗ | ✓ | ✓ | ✓ |
+| `leave.view.any` | ✗ | ✗ | ✓ | ✓ |
+| `leave.approve.team` (manager step) | ✗ | ✓ | ✓ | ✓ |
+| `leave.approve.final` (HR step) | ✗ | ✗ | ✓ | ✓ |
+| `leave.edit.any` (adjust balances) | ✗ | ✗ | ✓ | ✓ |
+| **requests** (non-leave: cert letters, doc requests, etc.) | | | | |
+| `requests.create.own` | ✓ | ✓ | ✓ | ✓ |
+| `requests.view.own` | ✓ | ✓ | ✓ | ✓ |
+| `requests.view.team` | ✗ | ✓ | ✓ | ✓ |
+| `requests.view.any` | ✗ | ✗ | ✓ | ✓ |
+| `requests.approve.team` | ✗ | ✓ | ✓ | ✓ |
+| `requests.approve.final` | ✗ | ✗ | ✓ | ✓ |
+| **payroll** | | | | |
+| `payroll.run` | ✗ | ✗ | ✓ | ✓ |
+| `payroll.lock` | ✗ | ✗ | ✓ | ✓ |
+| `payroll.mark_paid` | ✗ | ✗ | ✓ | ✓ |
+| `payroll.payslip.edit` (draft only) | ✗ | ✗ | ✓ | ✓ |
+| `payroll.payslip.view.own` | ✓ | ✓ | ✓ | ✓ |
+| `payroll.payslip.view.team` | ✗ | ✗ | ✓ | ✓ |
+| `payroll.payslip.view.any` | ✗ | ✗ | ✓ | ✓ |
+| **org structure** | | | | |
+| `org.departments.manage` | ✗ | ✗ | ✓ | ✓ |
+| `org.positions.manage` | ✗ | ✗ | ✓ | ✓ |
+| `org.offices.manage` (add/edit, set GPS radius) | ✗ | ✗ | ✓ | ✓ |
+| `org.holidays.manage` | ✗ | ✗ | ✓ | ✓ |
+| `org.holidays.bulk_apply` | ✗ | ✗ | ✓ | ✓ |
+| **users & access** | | | | |
+| `users.create` | ✗ | ✗ | ✗ | ✓ |
+| `users.disable` | ✗ | ✗ | ✗ | ✓ |
+| `users.assign_roles` | ✗ | ✗ | ✗ | ✓ |
+| `users.assign_permissions` (direct grant/revoke per user) | ✗ | ✗ | ✗ | ✓ |
+| `users.unlock` (clear `locked_at`) | ✗ | ✗ | ✓ | ✓ |
+| **chat / messaging** | | | | |
+| `chat.send` | ✓ | ✓ | ✓ | ✓ |
+| `chat.view.team` | ✗ | ✓ | ✓ | ✓ |
+| `chat.view.any` | ✗ | ✗ | ✓ | ✓ |
+| **availability** | | | | |
+| `availability.view.own` | ✓ | ✓ | ✓ | ✓ |
+| `availability.view.team` | ✗ | ✓ | ✓ | ✓ |
+| `availability.view.any` | ✗ | ✗ | ✓ | ✓ |
+| `availability.set.own` | ✓ | ✓ | ✓ | ✓ |
+| `availability.set.team` | ✗ | ✓ | ✓ | ✓ |
+| **announcements** | | | | |
+| `announcements.view` | ✓ | ✓ | ✓ | ✓ |
+| `announcements.create` | ✗ | ✗ | ✓ | ✓ |
+| **audit & settings** | | | | |
+| `audit.view` | ✗ | ✗ | ✗ | ✓ |
+| `settings.edit` | ✗ | ✗ | ✗ | ✓ |
+| **reports & exports** | | | | |
+| `reports.run.own` | ✓ | ✓ | ✓ | ✓ |
+| `reports.run.team` | ✗ | ✓ | ✓ | ✓ |
+| `reports.run.any` | ✗ | ✗ | ✓ | ✓ |
+| `exports.own` | ✓ | ✓ | ✓ | ✓ |
+| `exports.team` | ✗ | ✓ | ✓ | ✓ |
+| `exports.any` | ✗ | ✗ | ✓ | ✓ |
+| `exports.pdpl_self_service` (own data export per PDPL) | ✓ | ✓ | ✓ | ✓ |
+| **security** | | | | |
+| `security.step_up.required` (flag forces step-up on sensitive ops) | ✗ | ✗ | ✓ | ✓ |
+
+### 3.3 Per-user overrides
+
+Beyond the default bundles above, an admin can:
+- **Grant** an additional permission to a user (`UserPermissionService::grant($user, 'chat.view.any', $reason)`)
+- **Revoke** a permission a user would otherwise inherit from their role (`revoke($user, 'chat.send', $reason)`)
+- **Reset** a user back to their role's defaults (clear all direct grants and revokes)
+
+All grant/revoke/reset actions are written to `audit_logs` with the actor, target, permission, reason, and IP. The Settings → Staff Management UI (Feature Phase) renders one toggle per permission; toggles default to the role's value but show a visual indicator when overridden.
+
+### 3.4 Implementation
+
+- **Package:** `spatie/laravel-permission`. Each row in §3.2 = one row in `permissions` table.
+- **Roles:** seeded by `RolePermissionSeeder`, idempotent. Default bundles defined in `app/Permissions/RoleDefinitions.php` so they're code-reviewable.
+- **Direct grants/revokes:** Spatie's per-user permission storage is used directly. `UserPermissionService` wraps it to enforce the audit-log requirement (no direct calls to `$user->givePermissionTo` outside the service).
+- **Middleware on routes:** `permission:employees.edit.any`, `permission:payroll.run`. Multiple permissions: `permission:leave.approve.team|leave.approve.final`.
+- **Policies on models:** Permission alone is not enough for `team` and `own` scopes. Example `EmployeePolicy::view(User $actor, Employee $target)` returns true if `$actor->can('employees.view.any')` OR (`$actor->can('employees.view.team')` AND `$target->isInTeamOf($actor)`) OR (`$actor->can('employees.view.own')` AND `$target->id === $actor->employee_id`).
+- **Naming convention:** lowercase, dot-separated, `{domain}.{action}[.{scope}]`. Renames after seeding require a migration (rename in DB + grep update across codebase).
 
 ---
 
