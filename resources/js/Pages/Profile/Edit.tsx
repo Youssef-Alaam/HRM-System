@@ -1,27 +1,17 @@
 import AppLayout from '@/Layouts/AppLayout';
 import { PageProps } from '@/types';
 import { Head } from '@inertiajs/react';
+import { ReactNode } from 'react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 
-export default function Edit({
+function Edit({
     mustVerifyEmail,
     status,
 }: PageProps<{ mustVerifyEmail: boolean; status?: string }>) {
     return (
-        <AppLayout
-            header={
-                <div className="flex flex-col gap-1">
-                    <p className="text-xs uppercase tracking-widest text-yzh-text">
-                        Account
-                    </p>
-                    <h1 className="text-2xl font-semibold tracking-tight text-yzh-ink">
-                        Profile
-                    </h1>
-                </div>
-            }
-        >
+        <>
             <Head title="Profile" />
 
             <div className="space-y-6">
@@ -41,6 +31,25 @@ export default function Edit({
                     <DeleteUserForm className="max-w-xl" />
                 </section>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+Edit.layout = (page: ReactNode) => (
+    <AppLayout
+        header={
+            <div className="flex flex-col gap-1">
+                <p className="text-xs uppercase tracking-widest text-yzh-text">
+                    Account
+                </p>
+                <h1 className="text-2xl font-semibold tracking-tight text-yzh-ink">
+                    Profile
+                </h1>
+            </div>
+        }
+    >
+        {page}
+    </AppLayout>
+);
+
+export default Edit;

@@ -114,12 +114,23 @@ function initials(name: string): string {
         .join('');
 }
 
-function isActive(currentPath: string, href: string): boolean {
-    if (href === '/dashboard') {
-        return currentPath === '/dashboard';
+/**
+ * Longest-prefix match. Without this, /leave/balances matches BOTH the
+ * /leave parent and /leave/balances itself — so two siblings light up.
+ * Pre-compute the active href once per render against all hrefs in nav.
+ */
+function computeActiveHref(currentPath: string, allHrefs: string[]): string | null {
+    let best: string | null = null;
+    for (const href of allHrefs) {
+        const matches =
+            href === '/dashboard'
+                ? currentPath === '/dashboard'
+                : currentPath === href || currentPath.startsWith(href + '/');
+        if (matches && (!best || href.length > best.length)) {
+            best = href;
+        }
     }
-
-    return currentPath === href || currentPath.startsWith(href + '/');
+    return best;
 }
 
 function hasPermission(permissions: string[] | undefined, required?: string): boolean {
@@ -305,6 +316,9 @@ function SidebarNav({
     collapsed: boolean;
     onNavigate?: () => void;
 }) {
+    const allHrefs = groups.flatMap((g) => g.items.map((i) => i.href));
+    const activeHref = computeActiveHref(currentPath, allHrefs);
+
     return (
         <nav
             className="flex-1 overflow-y-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -319,7 +333,7 @@ function SidebarNav({
                     )}
                     <ul className="space-y-1">
                         {group.items.map((item) => {
-                            const active = isActive(currentPath, item.href);
+                            const active = item.href === activeHref;
                             return (
                                 <li key={item.href}>
                                     <Link

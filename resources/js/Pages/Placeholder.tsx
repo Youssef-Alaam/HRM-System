@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 import { Construction } from 'lucide-react';
+import { ReactElement } from 'react';
 
 import AppLayout from '@/Layouts/AppLayout';
 
@@ -9,17 +10,10 @@ interface PlaceholderProps {
     next?: string;
 }
 
-export default function Placeholder({ title, description, next }: PlaceholderProps) {
+function Placeholder({ next }: PlaceholderProps) {
     return (
-        <AppLayout
-            header={
-                <div>
-                    <h1 className="text-2xl font-semibold text-yzh-ink">{title}</h1>
-                    <p className="mt-1 text-sm text-yzh-slate">{description}</p>
-                </div>
-            }
-        >
-            <Head title={title} />
+        <>
+            <Head title="Placeholder" />
             <div className="mx-auto max-w-2xl">
                 <div className="rounded-lg border border-dashed border-yzh-bone-soft bg-white p-10 text-center">
                     <Construction className="mx-auto h-10 w-10 text-yzh-gold" />
@@ -36,6 +30,21 @@ export default function Placeholder({ title, description, next }: PlaceholderPro
                     )}
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+Placeholder.layout = (page: ReactElement<PlaceholderProps>) => (
+    <AppLayout
+        header={
+            <div>
+                <h1 className="text-2xl font-semibold text-yzh-ink">{page.props.title}</h1>
+                <p className="mt-1 text-sm text-yzh-slate">{page.props.description}</p>
+            </div>
+        }
+    >
+        {page}
+    </AppLayout>
+);
+
+export default Placeholder;

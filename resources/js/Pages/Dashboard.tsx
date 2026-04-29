@@ -7,8 +7,9 @@ import {
     Sparkles,
     Users,
 } from 'lucide-react';
+import { ReactNode } from 'react';
 
-export default function Dashboard() {
+function DashboardHeader() {
     const user = usePage().props.auth.user;
     const firstName = user.name.split(' ')[0];
     const today = new Date().toLocaleDateString('en-GB', {
@@ -19,18 +20,18 @@ export default function Dashboard() {
     });
 
     return (
-        <AppLayout
-            header={
-                <div className="flex flex-col gap-1">
-                    <p className="text-xs uppercase tracking-widest text-yzh-text">
-                        {today}
-                    </p>
-                    <h1 className="text-2xl font-semibold tracking-tight text-yzh-ink">
-                        Hello, {firstName}.
-                    </h1>
-                </div>
-            }
-        >
+        <div className="flex flex-col gap-1">
+            <p className="text-xs uppercase tracking-widest text-yzh-text">{today}</p>
+            <h1 className="text-2xl font-semibold tracking-tight text-yzh-ink">
+                Hello, {firstName}.
+            </h1>
+        </div>
+    );
+}
+
+function Dashboard() {
+    return (
+        <>
             <Head title="Dashboard" />
 
             <div className="space-y-8">
@@ -83,9 +84,15 @@ export default function Dashboard() {
                     </div>
                 </section>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+Dashboard.layout = (page: ReactNode) => (
+    <AppLayout header={<DashboardHeader />}>{page}</AppLayout>
+);
+
+export default Dashboard;
 
 function ComingCard({
     icon: Icon,
