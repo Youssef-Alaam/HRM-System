@@ -75,7 +75,7 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ---
 
-### F3: Auth (Laravel Sanctum) ⬜
+### F3: Auth (Laravel Sanctum) ✅
 
 **Done when:**
 - [ ] Sanctum installed and configured
@@ -90,7 +90,7 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ---
 
-### F4: RBAC via Spatie Permission ⬜
+### F4: RBAC via Spatie Permission ✅
 
 **Done when:**
 - [ ] `spatie/laravel-permission` installed
@@ -102,7 +102,7 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ---
 
-### F5: Audit log infrastructure ⬜
+### F5: Audit log infrastructure ✅
 
 **Done when:**
 - [ ] `Auditable` trait created
@@ -113,7 +113,7 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ---
 
-### F6: Multi-tenant scope (org_id everywhere) ⬜
+### F6: Multi-tenant scope (org_id everywhere) ✅
 
 **Done when:**
 - [ ] `BelongsToOrg` trait created with `OrgScope` global scope
@@ -124,7 +124,7 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ---
 
-### F7: Base layout + sidebar ⬜
+### F7: Base layout + sidebar ✅
 
 **Done when:**
 - [ ] `AppLayout.tsx` Inertia layout created
@@ -138,7 +138,7 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ---
 
-### F8: Seed data ⬜
+### F8: Seed data ✅
 
 **Done when:**
 - [ ] `OrganizationSeeder` — 1 org (YZH Solutions)
@@ -154,7 +154,7 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ---
 
-### F9: Service + Repository layer scaffolding ⬜
+### F9: Service + Repository layer scaffolding 🟨 (next session)
 
 **Done when:**
 - [ ] Folder structure created (Services, Repositories, Contracts, Requests, Resources)

@@ -4,35 +4,35 @@
 >
 > **Cleared at end of every session.** Anything important migrates to TASK_MANAGER.md or PROGRESS.md.
 
-**Last session:** 2026-04-29 (evening)
+**Last session:** 2026-04-29 (evening continuation — F3-F8 + patches, ended ready for F9)
 
 ---
 
 ## 🎯 Today's focus
 
-Pick up F3 (Sanctum + login hardening + audit-log auth events) and proceed through the user-pre-approved chunk: F3 → F4 → F5 → F6 → F7 → F8.
+F9 — Service + Repository layer scaffolding. Lock in the n-tier pattern so every Feature Phase task copies it instead of inventing it.
 
 ---
 
 ## 🔥 Right now (active task)
 
-F3 — Sanctum install + rate-limited login + audit_logs entries for login/logout/login_failed/password_reset.
+F9 — first up. Nothing in flight from the prior session.
 
 ---
 
 ## 📋 Next up (this session, after current)
 
-1. F4 — RBAC via Spatie Permission (4 roles, ~30 permissions, middleware, 1-2 example policies)
-2. F5 — Audit log infrastructure (`Auditable` trait + observer)
-3. F6 — Multi-tenant scope (`BelongsToOrg` trait + `OrgScope` global scope)
+1. F10 — Pest test framework (convert PHPUnit-style tests to Pest, add the plugin)
+2. F11 — CI/CD baseline (GitHub Actions workflow + Husky pre-commit). **First foundation task that needs `git push`** — pause for explicit go-ahead before pushing.
+3. F12 — Backup foundation (`spatie/laravel-backup`)
+4. F12.5 — Design Pass 1 (4-hour timebox, includes skeleton primitive + custom error pages)
+5. F13 — Walid review checkpoint
 
 ---
 
 ## 🤔 Questions for Walid
 
-(Things blocking me that need Walid's input)
-
-- None as of 2026-04-29 evening.
+- None blocking. PRD §3 was rewritten with the granular permission catalog + per-user override semantics during this session — Walid should sanity-read it before F13 in case any role bundle needs adjustment.
 
 ---
 
@@ -44,6 +44,8 @@ F3 — Sanctum install + rate-limited login + audit_logs entries for login/logou
 - **No skeleton/loading primitive exists.** The earlier Next.js prototype had one (commit `7b91d51`) but it didn't survive the Laravel migration. Captured as a checklist item under F12.5 Design Pass; build it then unless a placeholder feels jarring sooner.
 - **Public registration removed (2026-04-29).** YZH HR is internal — accounts created by admin. `/register` returns 404; do not re-enable without a product decision.
 - **Custom error pages requested (2026-04-29).** Currently 403/404/500 fall back to Symfony defaults. Branded pages (403/404/419/429/500/503) added to F12.5 Design Pass checklist — render via Inertia so they share app chrome.
+- **Tinker auto-aliases `App\Models\*`** via `config/tinker.php` defaults — `User::count()` works without `use` statements. `use` is still needed for facades and non-model classes (e.g. `Cache`, `Hash`, `RateLimiter`, `UserPermissionService`, `RoleDefinitions`).
+- F2 was marked complete previously but only shipped migrations, not Eloquent models. Models for Organization/Office/Department/Position/Employee/Holiday/AuditLog were created during F5 because the Auditable trait needed them. Recurring lesson: "tables exist" ≠ "feature works."
 
 ---
 
@@ -59,9 +61,19 @@ F3 — Sanctum install + rate-limited login + audit_logs entries for login/logou
 
 ---
 
+## 🚩 Flagged for later (carry over)
+
+Manual checks queued — none blocking F9, all <5 min each:
+- **Profile edit walkthrough** (name change, email change with re-verification, password update, soft-delete account)
+- **Multi-tenant smoke** via tinker — create a 2nd org, verify scope isolation between two logged-in users
+- **Audit log model-write demo** — create + rename + delete a holiday in tinker, read the before/after diff in `changes`
+- **Permission grant/revoke walkthrough** via tinker (UserPermissionService methods + audit-log verification). Will become a real UI under Settings → Users & Roles in Feature Phase.
+
+---
+
 ## ✅ Completed this session
 
-(Fully migrated to PROGRESS.md entry for 2026-04-29 evening continuation.)
+(See PROGRESS.md entry for 2026-04-29 evening continuation — F3-F8 + patches + TINKER_GUIDE.md, 99 tests passing.)
 
 ---
 
