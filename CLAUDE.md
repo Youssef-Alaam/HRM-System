@@ -14,9 +14,11 @@
 Every feature: **Controller → FormRequest → Service → Repository → Model**
 - Controllers receive request, validate via FormRequest, delegate to Service. **No business logic.**
 - FormRequests handle authorization + validation only.
-- Services hold all business logic. Wrap in `DB::transaction` for multi-step. Never call Eloquent directly.
-- Repositories abstract DB access. Interfaces in `app/Repositories/Contracts/`. **No business rules.**
+- Services hold all business logic. Extend `App\Services\BaseService` and use its `transaction()` helper for multi-step writes. Never call Eloquent directly.
+- Repositories abstract DB access. Extend `App\Repositories\BaseRepository`, declare a contract in `app/Repositories/Contracts/`, and bind it in `AppServiceProvider::REPOSITORY_BINDINGS`. **No business rules.**
 - Models = data only. Relationships, scopes, mutators. **No business logic.**
+
+**Reference vertical:** [Holiday CRUD](app/Http/Controllers/HolidayController.php) wires every layer end-to-end (FormRequests, Service, Repository + interface, Resource, route group, container binding, audited writes through `transaction()`). Copy this skeleton when building any new feature; tests in [tests/Feature/Holidays/HolidayLayeredFlowTest.php](tests/Feature/Holidays/HolidayLayeredFlowTest.php) show what end-to-end coverage looks like. Long-form rationale lives in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Multi-tenant from Day 1
 Every business model uses `BelongsToOrg` trait. `OrgScope` auto-filters by `auth()->user()->org_id`. Bypass via `withoutGlobalScope` (super-admin only, audit logged).

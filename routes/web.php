@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -85,6 +86,30 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
         ->middleware('permission:audit.view')->name('placeholder.admin.audit-log');
     Route::get('/admin/settings', $placeholder('System Settings', 'Org-wide configuration: compliance values, integrations, branding.'))
         ->middleware('permission:settings.edit')->name('placeholder.admin.settings');
+
+    /*
+    |--------------------------------------------------------------------------
+    | F9 reference vertical: Holiday CRUD (JSON only)
+    |--------------------------------------------------------------------------
+    | Exercises the full Controller → FormRequest → Service → Repository →
+    | Model pipeline for the layered-architecture scaffolding (F9). No nav
+    | item points here — the sidebar still hits /holidays (placeholder).
+    | Feature 9 (Settings → Holiday Calendar) will swap these handlers to
+    | Inertia::render() and add the admin pages.
+    */
+    Route::middleware('permission:org.holidays.manage')
+        ->prefix('admin/holidays')
+        ->name('admin.holidays.')
+        ->group(function () {
+            Route::get('/', [HolidayController::class, 'index'])->name('index');
+            Route::post('/', [HolidayController::class, 'store'])->name('store');
+            Route::get('/{holiday}', [HolidayController::class, 'show'])
+                ->whereNumber('holiday')->name('show');
+            Route::patch('/{holiday}', [HolidayController::class, 'update'])
+                ->whereNumber('holiday')->name('update');
+            Route::delete('/{holiday}', [HolidayController::class, 'destroy'])
+                ->whereNumber('holiday')->name('destroy');
+        });
 });
 
 require __DIR__.'/auth.php';

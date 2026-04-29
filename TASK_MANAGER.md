@@ -154,14 +154,16 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ---
 
-### F9: Service + Repository layer scaffolding 🟨 (next session)
+### F9: Service + Repository layer scaffolding ✅
 
 **Done when:**
-- [ ] Folder structure created (Services, Repositories, Contracts, Requests, Resources)
-- [ ] `BaseRepository` abstract with common methods
-- [ ] `BaseService` abstract with logging, audit hooks
-- [ ] First example feature wired through the layers
-- [ ] Documented pattern in CLAUDE.md
+- [x] Folder structure created (Services, Repositories, Contracts, Requests, Resources)
+- [x] `BaseRepository` abstract with common methods
+- [x] `BaseService` abstract with logging, audit hooks (audit handled by `Auditable` model trait via Eloquent events; BaseService provides `transaction()` so events commit atomically)
+- [x] First example feature wired through the layers — Holiday CRUD backend (JSON-only; Feature 9 will add the React pages)
+- [x] Documented pattern in CLAUDE.md (with pointers to ARCHITECTURE.md long-form + the Holiday reference vertical)
+
+**Side fix shipped with F9:** `Holiday::date` now persists as `Y-m-d` (not `Y-m-d H:i:s`) so equality checks work in both MySQL (DATE column) and SQLite (test driver). Pattern: any model with a DATE column should use the same `Attribute::make()` accessor — pull into a shared cast class when the second model needs it.
 
 ---
 
@@ -474,9 +476,9 @@ When tasks are split:
 ## 📍 Current status
 
 **Phase:** Foundation Phase
-**Current task:** F3 (Auth via Sanctum) — ⬜ Not started
-**Last session (2026-04-29 evening):** F2 + brand & visual layer + skills install. Test login `test@yzh.test` / `password123`. Visible at `/`, `/login`, `/dashboard`, `/profile`. UI is functional but at "AI-tier" — full polish deferred to new F12.5 task between F8 and F13.
-**Pre-approved chunk:** F3 → F8 (auth, RBAC, audit log, scope, sidebar, seed data) — proceed without per-task review.
+**Current task:** F10 (Pest test framework) — ⬜ Not started
+**Last session (2026-04-29 evening, 2nd half):** F9 done — BaseRepository / BaseService scaffolded, Holiday wired through every layer (Controller / FormRequest / Service / Repository + Contract / Resource / route group / container binding) with 10 layered-flow tests. 109 tests passing total. CLAUDE.md updated with pattern pointers.
+**Pre-approved chunk:** F3 → F8 was auth, RBAC, audit log, scope, sidebar, seed data — done. F9 → F12.5 next (test framework, CI/CD, backups, design pass) — proceed without per-task review. **F11 (CI/CD) is the first task that needs `git push` — pause for explicit go-ahead before pushing.**
 **Blockers:** None
 **Next milestone:** F13 Foundation review checkpoint
 
@@ -486,7 +488,7 @@ impeccable, taste-skill (4), ui-ux-pro-max (8), playwright-skill, obra/superpowe
 ### Toolchain locally (see `C:\Users\Dena\.local\yzh-hr-credentials.txt` for DB creds)
 PHP 8.3.30 (winget), Composer 2.9.7, MySQL 8.4.8 (Windows service `MySQL84`), Redis 7.0.15 (in WSL Ubuntu — currently bypassed via `database` driver due to Hyper-V firewall), Node 24.15.0.
 
-**Updated:** 2026-04-29 (evening)
+**Updated:** 2026-04-29 (evening, after F9)
 
 ---
 
