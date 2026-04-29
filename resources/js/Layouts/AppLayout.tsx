@@ -97,14 +97,13 @@ const NAV_GROUPS: NavGroup[] = [
             { label: 'Announcements', href: '/announcements', icon: ScrollText, permission: 'announcements.view' },
         ],
     },
-    {
-        label: 'Settings',
-        items: [
-            { label: 'Users & Roles', href: '/admin/users', icon: UserCog, permission: 'users.assign_roles' },
-            { label: 'Audit Log', href: '/admin/audit-log', icon: ShieldCheck, permission: 'audit.view' },
-            { label: 'System Settings', href: '/admin/settings', icon: Settings, permission: 'settings.edit' },
-        ],
-    },
+];
+
+// Admin items live in the top-right user menu, not the sidebar.
+const ADMIN_MENU_ITEMS: NavItem[] = [
+    { label: 'Users & Roles', href: '/admin/users', icon: UserCog, permission: 'users.assign_roles' },
+    { label: 'Audit Log', href: '/admin/audit-log', icon: ShieldCheck, permission: 'audit.view' },
+    { label: 'System Settings', href: '/admin/settings', icon: Settings, permission: 'settings.edit' },
 ];
 
 function initials(name: string): string {
@@ -132,12 +131,20 @@ function hasPermission(permissions: string[] | undefined, required?: string): bo
 
 const SIDEBAR_COLLAPSED_KEY = 'yzh-hr.sidebar.collapsed';
 
+type AppUser = {
+    id: number;
+    name: string;
+    email: string;
+    role?: string;
+    permissions?: string[];
+};
+
 export default function AppLayout({
     header,
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
     const page = usePage();
-    const user = page.props.auth?.user;
+    const user = page.props.auth?.user as AppUser | null | undefined;
     const currentPath = page.url.split('?')[0] ?? '/';
 
     const [collapsed, setCollapsed] = useState(false);
@@ -169,6 +176,10 @@ export default function AppLayout({
         items: group.items.filter((item) => hasPermission(user?.permissions, item.permission)),
     })).filter((group) => group.items.length > 0);
 
+    const adminItems = ADMIN_MENU_ITEMS.filter((item) =>
+        hasPermission(user?.permissions, item.permission),
+    );
+
     return (
         <div className="min-h-screen bg-yzh-bone text-yzh-ink">
             {/* Mobile top bar */}
@@ -177,14 +188,17 @@ export default function AppLayout({
                     <img src="/images/yzh-mark.png" alt="YZH" className="h-7 w-auto" />
                     <span className="text-xs font-medium tracking-[0.3em] text-yzh-bone-soft">HR</span>
                 </Link>
-                <button
-                    type="button"
-                    onClick={() => setMobileOpen(true)}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-md text-yzh-bone-soft hover:bg-yzh-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold"
-                    aria-label="Open menu"
-                >
-                    <Menu className="h-5 w-5" />
-                </button>
+                <div className="flex items-center gap-1">
+                    {user && <UserMenu user={user} adminItems={adminItems} dark />}
+                    <button
+                        type="button"
+                        onClick={() => setMobileOpen(true)}
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-md text-yzh-bone-soft hover:bg-yzh-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold"
+                        aria-label="Open menu"
+                    >
+                        <Menu className="h-5 w-5" />
+                    </button>
+                </div>
             </header>
 
             {/* Mobile drawer */}
@@ -221,7 +235,6 @@ export default function AppLayout({
                             collapsed={false}
                             onNavigate={() => setMobileOpen(false)}
                         />
-                        <SidebarUserCard user={user} collapsed={false} />
                     </div>
                 </div>
             )}
@@ -258,16 +271,22 @@ export default function AppLayout({
                         currentPath={currentPath}
                         collapsed={collapsed}
                     />
-
-                    <SidebarUserCard user={user} collapsed={collapsed} />
                 </aside>
 
                 <div className="flex min-w-0 flex-1 flex-col">
+                    {/* Desktop top bar — page header on left, user menu on right */}
+                    <header className="hidden lg:flex sticky top-0 z-20 items-center gap-4 border-b border-yzh-bone-soft bg-white px-6 py-4 lg:px-8">
+                        <div className="min-w-0 flex-1">{header}</div>
+                        {user && <UserMenu user={user} adminItems={adminItems} />}
+                    </header>
+
+                    {/* Mobile shows the page header below the mobile top bar (since mobile top bar holds the user menu) */}
                     {header && (
-                        <header className="border-b border-yzh-bone-soft bg-white">
-                            <div className="px-4 py-6 sm:px-6 lg:px-8">{header}</div>
-                        </header>
+                        <div className="lg:hidden border-b border-yzh-bone-soft bg-white px-4 py-6 sm:px-6">
+                            {header}
+                        </div>
                     )}
+
                     <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
                 </div>
             </div>
@@ -328,52 +347,66 @@ function SidebarNav({
     );
 }
 
-function SidebarUserCard({
+/**
+ * Top-right user menu. Click the avatar → dropdown opens downward (anchored to
+ * the right edge), so it never gets clipped against the bottom of the viewport.
+ * Includes admin-only items (Users & Roles, Audit Log, System Settings) when
+ * the user has the corresponding permissions.
+ */
+function UserMenu({
     user,
-    collapsed,
+    adminItems,
+    dark = false,
 }: {
-    user: { name: string; email: string; role?: string } | null | undefined;
-    collapsed: boolean;
+    user: AppUser;
+    adminItems: NavItem[];
+    dark?: boolean;
 }) {
-    if (!user) return null;
+    const triggerClasses = dark
+        ? 'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-yzh-bone-soft transition-colors hover:bg-yzh-ink-soft hover:text-yzh-bone focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold'
+        : 'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-yzh-ink transition-colors hover:bg-yzh-bone focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold';
 
     return (
-        <div className="border-t border-yzh-ink-mute p-3">
-            <Dropdown>
-                <Dropdown.Trigger>
-                    <button
-                        type="button"
-                        className={`flex w-full items-center gap-3 rounded-md p-2 text-left text-yzh-bone-soft transition-colors hover:bg-yzh-ink-soft hover:text-yzh-bone focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold ${collapsed ? 'justify-center' : ''}`}
-                    >
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-yzh-gold/15 text-xs font-semibold text-yzh-gold">
-                            {initials(user.name)}
+        <Dropdown>
+            <Dropdown.Trigger>
+                <button type="button" className={triggerClasses} aria-label="Open user menu">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-yzh-gold/15 text-xs font-semibold text-yzh-gold">
+                        {initials(user.name)}
+                    </span>
+                    <span className="hidden lg:flex flex-col items-start leading-tight">
+                        <span className="text-sm font-medium">{user.name}</span>
+                        <span className="text-[10px] uppercase tracking-widest text-yzh-text">
+                            {user.role ?? 'no role'}
                         </span>
-                        {!collapsed && (
-                            <>
-                                <span className="min-w-0 flex-1">
-                                    <span className="block truncate text-sm font-medium text-yzh-bone">
-                                        {user.name}
-                                    </span>
-                                    <span className="block truncate text-xs uppercase tracking-wider text-yzh-text">
-                                        {user.role ?? 'no role'}
-                                    </span>
-                                </span>
-                                <ChevronDown className="h-4 w-4 opacity-70" />
-                            </>
-                        )}
-                    </button>
-                </Dropdown.Trigger>
-                <Dropdown.Content align="left">
-                    <div className="px-4 py-3 text-xs text-gray-600">
-                        <div className="font-medium text-gray-900">{user.name}</div>
-                        <div className="truncate">{user.email}</div>
-                    </div>
-                    <Dropdown.Link href="/profile">Profile</Dropdown.Link>
-                    <Dropdown.Link href="/logout" method="post" as="button">
-                        Log out
-                    </Dropdown.Link>
-                </Dropdown.Content>
-            </Dropdown>
-        </div>
+                    </span>
+                    <ChevronDown className="hidden lg:block h-4 w-4 opacity-60" />
+                </button>
+            </Dropdown.Trigger>
+            <Dropdown.Content align="right">
+                <div className="px-4 py-3 text-xs">
+                    <div className="font-medium text-yzh-ink">{user.name}</div>
+                    <div className="truncate text-yzh-slate">{user.email}</div>
+                </div>
+                <div className="border-t border-yzh-bone-soft" />
+                <Dropdown.Link href="/profile">Profile</Dropdown.Link>
+                {adminItems.length > 0 && (
+                    <>
+                        <div className="border-t border-yzh-bone-soft" />
+                        <div className="px-4 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-yzh-text">
+                            Admin
+                        </div>
+                        {adminItems.map((item) => (
+                            <Dropdown.Link key={item.href} href={item.href}>
+                                {item.label}
+                            </Dropdown.Link>
+                        ))}
+                    </>
+                )}
+                <div className="border-t border-yzh-bone-soft" />
+                <Dropdown.Link href="/logout" method="post" as="button">
+                    Log out
+                </Dropdown.Link>
+            </Dropdown.Content>
+        </Dropdown>
     );
 }
