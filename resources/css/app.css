@@ -45,3 +45,105 @@
     border-color: var(--color-gray-200, currentcolor);
   }
 }
+
+/*
+  View Transitions API — Welcome → Login split-screen morph.
+
+  The dark canvas on / and the dark left aside on /login share the same
+  view-transition-name, so the browser morphs full-screen-dark to half-screen-dark
+  on navigation. Desktop only (lg:); mobile falls back to default cross-fade.
+  Safari 18+, Chrome 111+, Firefox 132+, Edge 111+. Falls back transparently
+  on older browsers.
+*/
+@media (min-width: 1024px) {
+  .vt-brand-panel {
+    view-transition-name: brand-panel;
+  }
+  .vt-yzh-hero {
+    view-transition-name: yzh-hero;
+  }
+}
+
+/* ease-out-quart per shared design law (no bounce, no elastic) */
+::view-transition-group(brand-panel),
+::view-transition-group(yzh-hero) {
+  animation-duration: 600ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::view-transition-old(brand-panel),
+::view-transition-new(brand-panel),
+::view-transition-old(yzh-hero),
+::view-transition-new(yzh-hero) {
+  animation-duration: 600ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::view-transition-old(root) {
+  animation-duration: 200ms;
+  animation-timing-function: ease-out;
+}
+
+::view-transition-new(root) {
+  animation-duration: 400ms;
+  animation-delay: 200ms;
+  animation-timing-function: ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/*
+  Loading-screen keyframes — Compass Arc variant (selected from F12.5 review).
+  Used by Components/LoadingScreen.tsx during in-app navigation.
+*/
+
+/* Fade-up entrance for kicker/title text */
+@keyframes ls-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* SVG arc stroke draw via dashoffset */
+@keyframes ls-stroke-draw {
+  0% {
+    stroke-dashoffset: var(--ls-stroke-length, 200);
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Opacity fade-in for anchors and labels */
+@keyframes ls-fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Pulsing dot for "Loading" state indicator */
+@keyframes ls-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.7);
+  }
+}
