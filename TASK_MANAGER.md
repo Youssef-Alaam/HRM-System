@@ -52,26 +52,26 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ---
 
-### F2: Database setup + foundational migrations ⬜
+### F2: Database setup + foundational migrations ✅
 
 **Goal:** MySQL connected, core tables exist, Eloquent in use.
 
 **Done when:**
-- [ ] MySQL 8 running locally
-- [ ] `.env` configured for MySQL connection
-- [ ] `php artisan migrate` runs cleanly
-- [ ] Foundational tables created via migrations (in this order):
-  - [ ] `organizations` (id, name, legal_name, country, currency='EGP', timezone='Africa/Cairo')
-  - [ ] `users` (Laravel default + email_verified_at, modified for our schema)
-  - [ ] `offices` (org_id, lat, long, allowed_check_in_radius_meters)
-  - [ ] `departments` (org_id, parent_department_id self-ref, head_employee_id nullable)
-  - [ ] `positions` (org_id, department_id, level)
-  - [ ] `employees` (full schema per PRD §5 — 40+ fields, version column, soft-delete)
-  - [ ] `holidays` (org_id, name, date, is_recurring)
-  - [ ] `audit_logs` (user_id, action, entity_type, entity_id, changes_json, ip, user_agent)
-- [ ] All tables include `org_id`, `created_at`, `updated_at`, `deleted_at` (soft deletes)
-- [ ] Foreign keys correct
-- [ ] Indexes on hot paths
+- [x] MySQL 8 running locally
+- [x] `.env` configured for MySQL connection
+- [x] `php artisan migrate` runs cleanly
+- [x] Foundational tables created via migrations (in this order):
+  - [x] `organizations` (10 cols)
+  - [x] `users` (Breeze default + `org_id`, `employee_id`, `deleted_at`)
+  - [x] `offices` (lat/long/radius, GPS-ready)
+  - [x] `departments` (self-ref `parent_department_id`, `head_employee_id`)
+  - [x] `positions` (FK to departments, level)
+  - [x] `employees` (54 cols — identity, demographics, contract, leave balances, expat fields, health flags, audit)
+  - [x] `holidays` (with `is_make_up` for govt-declared replacements)
+  - [x] `audit_logs` (immutable — no `updated_at`)
+- [x] All tables include `org_id`, soft deletes (except audit_logs)
+- [x] 17 foreign keys correct, including circular `users` ↔ `employees`
+- [x] Hot-path indexes on org_id, employment_status, manager/dept/office, hiring_date, is_expat
 
 ---
 
@@ -449,8 +449,8 @@ When tasks are split:
 ## 📍 Current status
 
 **Phase:** Foundation Phase
-**Current task:** F2 (Database setup + foundational migrations) — ⬜ Not started
-**Last session:** F1 done (2026-04-29) — Laravel + Inertia + React + TS + Tailwind v4 + lucide-react; Breeze auth scaffold; MySQL `yzh_hr` DB connected; default migrations applied
+**Current task:** F3 (Auth via Sanctum) — ⬜ Not started
+**Last session:** F2 done (2026-04-29) — 8 foundational tables (54-col employees, expat support, leave balances, audit_logs, 17 FKs); pre-F2 added ESLint, PRODUCT.md, DESIGN.md
 **Blockers:** None
 **Next milestone:** F13 Foundation review checkpoint
 
