@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AppLayout from '@/Layouts/AppLayout';
 import { PageProps } from '@/types';
 import { Head } from '@inertiajs/react';
 import DeleteUserForm from './Partials/DeleteUserForm';
@@ -10,7 +10,7 @@ export default function Edit({
     status,
 }: PageProps<{ mustVerifyEmail: boolean; status?: string }>) {
     return (
-        <AuthenticatedLayout
+        <AppLayout
             header={
                 <div className="flex flex-col gap-1">
                     <p className="text-xs uppercase tracking-widest text-yzh-text">
@@ -41,6 +41,6 @@ export default function Edit({
                     <DeleteUserForm className="max-w-xl" />
                 </section>
             </div>
-        </AuthenticatedLayout>
+        </AppLayout>
     );
 }

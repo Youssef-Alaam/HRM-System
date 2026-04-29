@@ -43,6 +43,7 @@ F3 — Sanctum install + rate-limited login + audit_logs entries for login/logou
 - Tailwind v4 + shadcn don't fully agree yet on Inertia/Laravel projects — install shadcn components per-feature when needed, not eagerly.
 - **No skeleton/loading primitive exists.** The earlier Next.js prototype had one (commit `7b91d51`) but it didn't survive the Laravel migration. Captured as a checklist item under F12.5 Design Pass; build it then unless a placeholder feels jarring sooner.
 - **Public registration removed (2026-04-29).** YZH HR is internal — accounts created by admin. `/register` returns 404; do not re-enable without a product decision.
+- **Custom error pages requested (2026-04-29).** Currently 403/404/500 fall back to Symfony defaults. Branded pages (403/404/419/429/500/503) added to F12.5 Design Pass checklist — render via Inertia so they share app chrome.
 
 ---
 

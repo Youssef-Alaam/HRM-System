@@ -1,5 +1,6 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
+import PasswordInput from '@/Components/PasswordInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
@@ -56,9 +57,8 @@ export default function ResetPassword({
 
                 <div className="space-y-1.5">
                     <InputLabel htmlFor="password" value="New password" />
-                    <TextInput
+                    <PasswordInput
                         id="password"
-                        type="password"
                         name="password"
                         value={data.password}
                         autoComplete="new-password"
@@ -74,9 +74,8 @@ export default function ResetPassword({
                         htmlFor="password_confirmation"
                         value="Confirm new password"
                     />
-                    <TextInput
+                    <PasswordInput
                         id="password_confirmation"
-                        type="password"
                         name="password_confirmation"
                         value={data.password_confirmation}
                         autoComplete="new-password"

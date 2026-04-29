@@ -1,7 +1,7 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
+import PasswordInput from '@/Components/PasswordInput';
 import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
 import { Transition } from '@headlessui/react';
 import { useForm } from '@inertiajs/react';
 import { FormEventHandler, useRef } from 'react';
@@ -64,14 +64,13 @@ export default function UpdatePasswordForm({
                         htmlFor="current_password"
                         value="Current password"
                     />
-                    <TextInput
+                    <PasswordInput
                         id="current_password"
                         ref={currentPasswordInput}
                         value={data.current_password}
                         onChange={(e) =>
                             setData('current_password', e.target.value)
                         }
-                        type="password"
                         autoComplete="current-password"
                     />
                     <InputError message={errors.current_password} />
@@ -79,12 +78,11 @@ export default function UpdatePasswordForm({
 
                 <div className="space-y-1.5">
                     <InputLabel htmlFor="password" value="New password" />
-                    <TextInput
+                    <PasswordInput
                         id="password"
                         ref={passwordInput}
                         value={data.password}
                         onChange={(e) => setData('password', e.target.value)}
-                        type="password"
                         autoComplete="new-password"
                         placeholder="At least 8 characters"
                     />
@@ -96,13 +94,12 @@ export default function UpdatePasswordForm({
                         htmlFor="password_confirmation"
                         value="Confirm new password"
                     />
-                    <TextInput
+                    <PasswordInput
                         id="password_confirmation"
                         value={data.password_confirmation}
                         onChange={(e) =>
                             setData('password_confirmation', e.target.value)
                         }
-                        type="password"
                         autoComplete="new-password"
                     />
                     <InputError message={errors.password_confirmation} />

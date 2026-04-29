@@ -23,7 +23,7 @@ import {
     Wallet,
     X,
 } from 'lucide-react';
-import { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
+import { PropsWithChildren, ReactNode, useState } from 'react';
 
 import Dropdown from '@/Components/Dropdown';
 
@@ -146,17 +146,18 @@ export default function AppLayout({
     const user = page.props.auth?.user as AppUser | null | undefined;
     const currentPath = page.url.split('?')[0] ?? '/';
 
-    const [collapsed, setCollapsed] = useState(false);
-    const [mobileOpen, setMobileOpen] = useState(false);
-
-    useEffect(() => {
+    // Lazy initializer reads localStorage on first render so the sidebar
+    // never paints its expanded state before snapping closed (fixes the
+    // flicker that happened when navigating into the app while collapsed).
+    const [collapsed, setCollapsed] = useState<boolean>(() => {
+        if (typeof window === 'undefined') return false;
         try {
-            const stored = window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
-            if (stored === '1') setCollapsed(true);
+            return window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1';
         } catch {
-            /* localStorage unavailable */
+            return false;
         }
-    }, []);
+    });
+    const [mobileOpen, setMobileOpen] = useState(false);
 
     const toggleCollapsed = () => {
         setCollapsed((prev) => {
@@ -324,6 +325,7 @@ function SidebarNav({
                                     <Link
                                         href={item.href}
                                         onClick={onNavigate}
+                                        preserveScroll
                                         title={collapsed ? item.label : undefined}
                                         className={`group flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold ${
                                             active
