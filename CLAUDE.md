@@ -59,6 +59,9 @@ public function calculateAnnualLeave(Employee $employee): int { ... }
 ```
 
 ## Tests: Pest, before declaring done
+- Pest 3.8 + `pest-plugin-laravel` installed (F10). Pest builds on PHPUnit, so existing class-style tests continue to work — **write all new tests in Pest function syntax** (`test()`, `it()`, `describe()`). Migrate old PHPUnit files to Pest opportunistically when you're already touching them; no big-bang conversion.
+- Reference style: [tests/Feature/Smoke/FoundationSmokeTest.php](tests/Feature/Smoke/FoundationSmokeTest.php). Helpers + global `uses()` live in [tests/Pest.php](tests/Pest.php).
+- Run via `php artisan test` or `./vendor/bin/pest`. Both run the full suite.
 - Every Service method tested
 - Every payroll calculation tested with golden cases
 - `php artisan test` passes before commit

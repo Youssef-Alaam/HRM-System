@@ -167,13 +167,15 @@ These are non-negotiable infrastructure tasks. Build them in order. No per-task 
 
 ---
 
-### F10: Test framework (Pest) ⬜
+### F10: Test framework (Pest) ✅
 
 **Done when:**
-- [ ] Pest installed
-- [ ] `tests/Feature` and `tests/Unit` directories ready
-- [ ] First tests: auth login, RBAC blocks employee from admin route, multi-tenant scope isolates data
-- [ ] `php artisan test` runs all tests, all pass
+- [x] Pest installed (`pestphp/pest:^3.8` + `pest-plugin-laravel:^3.0`). PHPUnit pinned a tick lower (11.5.55 → 11.5.50) to satisfy Pest 3's conflict bound; same minor, no API changes.
+- [x] `tests/Feature` and `tests/Unit` directories ready (kept as-is; existing PHPUnit class tests run unchanged via the Pest runner)
+- [x] First tests: auth login, RBAC blocks employee from admin route, multi-tenant scope isolates data — covered both by existing PHPUnit suites AND a new Pest-style smoke test ([tests/Feature/Smoke/FoundationSmokeTest.php](tests/Feature/Smoke/FoundationSmokeTest.php)) that demonstrates the canonical Pest convention.
+- [x] `php artisan test` runs all tests, all pass — **114 passed (109 PHPUnit + 5 new Pest), 423 assertions, 21s**
+
+**Convention going forward (in CLAUDE.md):** new tests in Pest function syntax. Migrate old PHPUnit files opportunistically when touched — no big-bang rewrite. Helpers + global `uses()` live in [tests/Pest.php](tests/Pest.php).
 
 ---
 
@@ -476,9 +478,9 @@ When tasks are split:
 ## 📍 Current status
 
 **Phase:** Foundation Phase
-**Current task:** F10 (Pest test framework) — ⬜ Not started
-**Last session (2026-04-29 evening, 2nd half):** F9 done — BaseRepository / BaseService scaffolded, Holiday wired through every layer (Controller / FormRequest / Service / Repository + Contract / Resource / route group / container binding) with 10 layered-flow tests. 109 tests passing total. CLAUDE.md updated with pattern pointers.
-**Pre-approved chunk:** F3 → F8 was auth, RBAC, audit log, scope, sidebar, seed data — done. F9 → F12.5 next (test framework, CI/CD, backups, design pass) — proceed without per-task review. **F11 (CI/CD) is the first task that needs `git push` — pause for explicit go-ahead before pushing.**
+**Current task:** F11 (CI/CD baseline) — ⬜ Not started. **First task that needs `git push` — pause for explicit go-ahead before pushing.**
+**Last session (2026-04-29 evening, 2nd half):** F9 + F10 done. Holiday n-tier reference vertical + Pest 3.8 installed. 114 tests passing (109 PHPUnit + 5 Pest smoke). CLAUDE.md updated with both n-tier and Pest conventions.
+**Pre-approved chunk:** F3 → F10 done. F11 → F12.5 next (CI/CD, backups, design pass). F11 needs explicit push approval; F12 + F12.5 don't.
 **Blockers:** None
 **Next milestone:** F13 Foundation review checkpoint
 
@@ -488,7 +490,7 @@ impeccable, taste-skill (4), ui-ux-pro-max (8), playwright-skill, obra/superpowe
 ### Toolchain locally (see `C:\Users\Dena\.local\yzh-hr-credentials.txt` for DB creds)
 PHP 8.3.30 (winget), Composer 2.9.7, MySQL 8.4.8 (Windows service `MySQL84`), Redis 7.0.15 (in WSL Ubuntu — currently bypassed via `database` driver due to Hyper-V firewall), Node 24.15.0.
 
-**Updated:** 2026-04-29 (evening, after F9)
+**Updated:** 2026-04-29 (evening, after F10)
 
 ---
 
