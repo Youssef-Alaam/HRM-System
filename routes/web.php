@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -32,9 +33,21 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
     | Permission middleware is wired to the granular catalog from F4.
     */
 
-    // People
-    Route::get('/employees', $placeholder('Employees', 'Roster of all employees, profiles, contracts, expat documents.'))
-        ->middleware('permission:employees.view.own')->name('placeholder.employees');
+    // People — Feature 2 Employees CRUD (replaces placeholder).
+    // Permission middleware on the resource group; controller does finer-grained scope.
+    Route::get('/employees', [EmployeeController::class, 'index'])
+        ->middleware('permission:employees.view.team|employees.view.any')
+        ->name('employees.index');
+    Route::post('/employees', [EmployeeController::class, 'store'])
+        ->middleware('permission:employees.create')
+        ->name('employees.store');
+    Route::get('/employees/{employee}', [EmployeeController::class, 'show'])
+        ->whereNumber('employee')
+        ->name('employees.show');
+    Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])
+        ->whereNumber('employee')
+        ->middleware('permission:employees.delete')
+        ->name('employees.destroy');
     Route::get('/departments', $placeholder('Departments', 'Department hierarchy and reporting structure.'))
         ->middleware('permission:employees.view.own')->name('placeholder.departments');
     Route::get('/positions', $placeholder('Positions', 'Job titles and levels per department.'))

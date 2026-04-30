@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Repositories\Contracts\DashboardRepositoryInterface;
+use App\Repositories\Contracts\EmployeeRepositoryInterface;
 use App\Repositories\Contracts\HolidayRepositoryInterface;
 use App\Repositories\DashboardRepository;
+use App\Repositories\EmployeeRepository;
 use App\Repositories\HolidayRepository;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -20,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
     private const REPOSITORY_BINDINGS = [
         HolidayRepositoryInterface::class => HolidayRepository::class,
         DashboardRepositoryInterface::class => DashboardRepository::class,
+        EmployeeRepositoryInterface::class => EmployeeRepository::class,
     ];
 
     /**

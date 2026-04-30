@@ -101,3 +101,59 @@ None. Read-only aggregation. No Egyptian Labor Law calculations.
 - Modified: `app/Providers/AppServiceProvider.php` — bound `DashboardRepositoryInterface`
 - Modified: `routes/web.php` — `/dashboard` now `[DashboardController::class, 'index']`
 - Modified: `resources/js/Pages/Dashboard.tsx` — reads `widgets` prop, renders role-aware sections, polls headcount every 60s
+
+---
+
+## Feature 2 — Employees (backend, partial) 🟨
+
+**Shipped:** 2026-04-30 (backend create flow + soft-delete + list/show)
+**Spec:** [specs/feature-2-employees.md](specs/feature-2-employees.md)
+**Tests added:** 9 (in `tests/Feature/Employees/EmployeeCreateTest.php`); pre-existing `PlaceholderRoutesTest::test_employee_routes_open_for_all_roles_with_view_own_permission` rewritten for the tighter Feature-2 permissions.
+**Total tests after:** 144 passing, 669 assertions
+
+### What's in this slice
+
+Backend N-tier for the `Employees` resource is wired:
+
+- `StoreEmployeeRequest` — full validation: Egyptian National ID 14-digit format starting with 2 or 3, Egyptian mobile 11-digit format starting with 010/011/012/015, expat conditional fields (passport + work permit + expiry), org-scoped `exists` rules on department/position/office/manager.
+- `EmployeeRepository implements EmployeeRepositoryInterface` — list/find/create/update/softDelete + `generateEmployeeCode(orgId)` produces sequential `YZH-{org}-{0001}` codes.
+- `EmployeeService::create` — wraps in `transaction()`: creates `User` row first (with random password — first-login flow lands later), assigns `employee` role, creates `Employee` linked to user, closes loop with `user.employee_id`. Universal law-minimum leave balances seeded inline per Decision 18 (15 annual / 7 casual / 0 sick — sick accrues per Egyptian Labor Law art. 54 once Feature 6 ships).
+- `EmployeeController` — `index` (paginated list with manager-scope filter for managers), `show` (self / team / any per permission), `store` (HR/Admin only), `destroy` (soft-delete with required reason).
+- 4 routes wired at `/employees` with permission middleware on each verb. Old placeholder route deleted.
+- `PositionFactory` + `OfficeFactory` added (were missing; needed for the test setup helper).
+
+### What's NOT yet in this slice (next session)
+
+- Tier-aware update flow (`UpdateEmployeeRequest`, Tier 1/2/3 authorization, change-request queue for Tier 2)
+- `EmployeeController::update` + `restore` + `terminate` actions
+- Photo upload + storage + preview
+- Frontend: list page (`/employees`), detail page (`/employees/{id}`), create form, edit form, delete confirmation modal
+- Remaining ~20 Pest tests across `EmployeeListTest`, `EmployeeUpdateTest`, `EmployeeDeleteRestoreTest`
+
+### Routes live now
+
+| Verb | URL | Auth requirement |
+|---|---|---|
+| `GET` | `/employees` | `employees.view.team` or `employees.view.any` |
+| `POST` | `/employees` | `employees.create` |
+| `GET` | `/employees/{id}` | `employees.view.own` (self) / `view.team` (own team) / `view.any` (HR+) |
+| `DELETE` | `/employees/{id}` | `employees.delete` (HR/Admin) |
+
+### Compliance citations
+- Decision 18 — universal law-minimum leave balances initialized on create (annual = 15, casual = 7, sick = 0 baseline)
+- Decision 8 — money in piasters (integer column `base_salary_piasters`)
+- Egyptian Labor Law: National ID validation per civil registry format (14 digits, 2 = 1900s birth, 3 = 2000s)
+
+### Files touched
+
+- New: `app/Http/Controllers/EmployeeController.php`
+- New: `app/Http/Requests/StoreEmployeeRequest.php`
+- New: `app/Services/EmployeeService.php`
+- New: `app/Repositories/Contracts/EmployeeRepositoryInterface.php`
+- New: `app/Repositories/EmployeeRepository.php`
+- New: `database/factories/PositionFactory.php`
+- New: `database/factories/OfficeFactory.php`
+- New: `tests/Feature/Employees/EmployeeCreateTest.php`
+- Modified: `app/Providers/AppServiceProvider.php` — bound `EmployeeRepositoryInterface`
+- Modified: `routes/web.php` — replaced `/employees` placeholder with the resource routes
+- Modified: `tests/Feature/Layout/PlaceholderRoutesTest.php` — rewrote employee-route test for the tighter permission gate
