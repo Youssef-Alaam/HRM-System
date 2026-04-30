@@ -168,3 +168,122 @@ Tier-edit gating: a `BaseFormRequest::authorize()` checks the requested fields a
 - Frontend detail page uses tabs (Inertia partial reload per tab to avoid full page reloads).
 
 This is a 1-2 day feature realistically. Pest test count expected: +20 to +30 new tests. File count: ~12 new (controller + 2 form requests + service + repo + interface + 4 React pages + 4 test files + factory updates).
+
+---
+
+## Revisions locked 2026-04-30 (after design review with Walid)
+
+The original spec above stays as the contract for create/list/show/soft-delete (already shipped — see commits 3b9fcdd + dd21e8c). The decisions below revise the still-pending work.
+
+### Employee code format change — `EMP-XXXXX`
+
+Original: `YZH-{org_id}-{NNNN}` (e.g., `YZH-1-0042`).
+
+**New:** `EMP-XXXXX` where the first digit encodes the position type and the remaining 4 digits encode tenure order within that type group.
+
+| First digit | Position type |
+|---|---|
+| 0 | Executive (CEO, COO, CFO, CTO, etc.) |
+| 1 | Engineering / Technical |
+| 2 | Sales |
+| 3 | Marketing |
+| 4 | Operations |
+| 5 | HR |
+| 6 | Finance |
+| 7 | Customer Support |
+| 8 | Legal |
+| 9 | Other |
+
+Examples: `EMP-10001` = first engineer ever hired; `EMP-30015` = 15th salesperson; `EMP-00001` = first executive.
+
+**Rules:**
+- **Sticky:** codes are assigned once and never change, even if the employee changes positions. Audit trail records position changes separately.
+- **Tenure sequence:** ordered by `hiring_date ASC`, tiebreak by `id ASC`.
+- **9999 cap per type** — if any type overflows we widen to 5 tenure digits later.
+
+**Implementation:**
+- New migration: add `type_code` column (unsigned tinyint, 0-9) to `positions` table with sensible default per position name keyword.
+- Repository method `generateEmployeeCode($orgId, $positionId)` looks up position's type_code, counts existing employees in that type bucket, returns `EMP-{type}{NNNN-padded}`.
+- One-off backfill migration: walks all 28 seeded employees ordered by hiring_date, assigns new EMP-codes in sequence per type bucket. Old `YZH-1-NNNN` codes are overwritten.
+
+### Tier-aware edit model — simplified to 2 tiers
+
+Original spec proposed 3 tiers (Tier 1 self-edit, Tier 2 change-request queue, Tier 3 HR-only). Walid simplified to **2 tiers** — no change-request queue.
+
+| Tier | Fields | Who edits |
+|---|---|---|
+| **Self** | phone, current_address, emergency_contact_name, emergency_contact_phone, marital_status, dependents | Employee directly via Profile page; HR/Admin can also edit |
+| **HR-only** | base_salary_piasters, contract_type, contract dates, role assignment, department_id, position_id, office_id, manager_id, employment_status, leave balance overrides, bank_account, employee_code (never editable post-create) | HR + Admin only |
+
+Implementation: `UpdateEmployeeRequest::authorize()` inspects `array_keys($data)` and returns false if any HR-only field is present and the actor lacks `employees.edit.any`.
+
+### Search bar UX fix
+
+Symptom: clicking search triggered AppLayout's full-page Compass Arc loading, replacing the search bar mid-type.
+
+**Fix:** AppLayout's `router.on('start')` hook compares incoming visit's `URL.pathname` to current path. If same, skip the full-page loading screen. Same-route navigations (filter changes, search refreshes) are handled inline by the page itself.
+
+`Pages/Employees/Index.tsx` adds a small inline `searching` state — gold pulsing dot in the results section while data refreshes. Search input + filter controls remain mounted throughout.
+
+### Search filters — full set
+
+All filters at Phase 1 (Walid: "all of them, isn't a complex operation"):
+- Search box (name + email + employee_code)
+- Department dropdown
+- Position dropdown
+- Office dropdown
+- Employment status (active / suspended / on_leave / probation / terminated / deemed_resigned / retired)
+- Hire-date range (from / to)
+- Expat-only toggle
+- Has-missing-required-docs toggle (joins to `employee_documents`)
+
+Filters serialize to URL query params; back/forward preserves state.
+
+### CSV + Excel export
+
+Walid: "Export everywhere it would be needed."
+
+Add an "Export" stamped CTA next to the search bar on every list (`Employees`, `Assets`, `Documents`). Two formats:
+- **CSV** — flat data, all visible columns + `employee_code`
+- **Excel** — same data with formatted headers, auto-column width, locale-aware date/money formatting
+
+Backend uses `maatwebsite/excel` (composer require). Export is gated by `exports.team` / `exports.any` per existing permission catalog.
+
+### Profile photo strategy
+
+Two distinct photo concepts on the employee record:
+
+1. **Profile photo (`photo_url` column):** the avatar shown on roster + employee detail page. Casual headshot, single image. HR/Admin uploads via Profile page on create or later edits.
+2. **Reference photos (face enrollment — see [face-enrollment.md](face-enrollment.md)):** 3 photos from the in-office enrollment session. Used by face-api.js to compute the face descriptor for attendance verification. Stored separately under `storage/app/employee-faces/{employee_id}/{enrollment_id}/`.
+
+For **seeded data**: profile photos are **initials avatars** (CSS-rendered colored circles with the employee's initials, e.g. "AH" in gold on ink). No image files seeded. HR uploads real photos manually per employee post-onboarding.
+
+### Default workweek
+
+Egypt private sector standard: **Sunday–Thursday** (5 days). All seeded employees default to `workweek_days = ["sun","mon","tue","wed","thu"]`. Construction crews / 6-day workweeks can be configured per-employee later.
+
+### Sidebar restructure
+
+Walid wants a tighter sidebar. **Departments / Positions / Offices** move out of the People sidebar group and into the **Settings** menu (top-right user dropdown, Admin-only). The People group gets new sidebar items for Documents and Assets:
+
+```
+PEOPLE
+  ├─ Employees
+  ├─ Org chart
+  ├─ Documents       ← HR + Admin only (sidebar item hidden for others)
+  └─ Assets          ← visible to all roles, data scoped per role
+```
+
+Settings menu (Admin-only, in user dropdown):
+```
+SETTINGS
+  ├─ Departments
+  ├─ Positions
+  ├─ Offices
+  ├─ Document types     ← required matrix configuration
+  ├─ Asset categories
+  ├─ Holiday calendar
+  ├─ Users & Roles
+  ├─ Audit Log
+  └─ System Settings
+```

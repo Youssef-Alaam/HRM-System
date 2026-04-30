@@ -413,8 +413,8 @@ Departments / Positions / Offices / Holiday Calendar / User Management / System 
 
 ### Feature 10: Audit Log Viewer ⬜
 
-### Feature 11: Documents Module ⬜
-Per-employee document storage with expiry alerts
+### Feature 11: Documents Module 🟨 PROMOTED to Phase 1 (Walid 2026-04-30)
+Per-employee document storage with expiry alerts. Required-document matrix per org (7 Egyptian + 3 expat docs locked). HR-only upload — employees never self-upload. See [specs/feature-11-documents.md](specs/feature-11-documents.md). Built right after Feature 2.
 
 ### Feature 12: Internal Inbox ⬜
 
@@ -451,7 +451,8 @@ Empty states, error states, accessibility, keyboard shortcuts, image optimizatio
 
 ## 🚀 Phase 2 (after Phase 1 ships)
 
-### Feature 22: Asset module ⬜
+### Feature 22: Asset module 🟨 PROMOTED to Phase 1 (Walid 2026-04-30)
+Per-employee equipment tracking with chain of custody for HR/Admin. Categories: Laptop / Accessories / Phone / Badge ID (no badges yet, category retained). HR can add more categories from Settings. Asset age = snapshot at assignment (Option B). See [specs/feature-22-assets.md](specs/feature-22-assets.md). Built right after Feature 11.
 ### Feature 23: Onboarding/Offboarding workflows ⬜
 ### Feature 24: AI Assistant ⬜
 ### Feature 25: Manager Activity Report ⬜
@@ -496,12 +497,28 @@ When tasks are split:
 
 ## 📍 Current status
 
-**Phase:** Foundation Phase
-**Current task:** F13 Foundation review checkpoint 🟦 — awaiting Walid walkthrough.
-**Last session (2026-04-30):** F12.5 closed. Engineering Studio language adopted across the app, Welcome → Login split-screen morph via View Transitions API, Compass Arc in-app navigation loading screen replacing Inertia's top progress bar, all auth + dashboard + profile + placeholder + error surfaces redesigned in coherent architectural-drawing language. 124 tests passing.
-**Pre-approved chunk:** F3 → F12.5 done. F13 review next.
+**Phase:** Feature Phase 1
+**Current task:** Feature 2 (Employees) — backend partial shipped (create/list/show/soft-delete + Inertia pages); pending: EMP-XXXXX format change, create form, Tier 1/2 edit model, full ~30 Pest tests.
+**Last session (2026-04-30):** F12.5 closed; F13 waived; Feature 1 Dashboard fully shipped (11 tests, role-aware widgets, 60s polling); Feature 2 Employees backend partial (9 tests). Two design-discussion rounds locked: EMP-XXXXX format with type prefix + tenure sequence; sidebar restructure (Departments/Positions/Offices → Settings menu); Documents (Feature 11) + Assets (Feature 22) promoted to Phase 1; required-doc matrix locked with 7 Egyptian + 3 expat docs; face enrollment via face-api.js (3 photos, 12-month re-enroll, 5-fail trigger); HR-only doc upload; export buttons everywhere; all filters; medium-depth seed.
+**Pre-approved chunk:** F3 → Feature 1 done. Feature 2 + sidebar restructure + new Features 11 + 22 + face enrollment up next, all locked via specs/ files.
 **Blockers:** None
-**Next milestone:** F13 sign-off → Feature Phase 1 (Dashboard) starts
+**Next milestone:** Feature 2 fully shipped + Documents + Assets + face enrollment → Feature 3 (Org Chart)
+
+## 📦 Phase 1 build queue (locked 2026-04-30 across 3 design-discussion rounds)
+
+Working backlog for the next session(s). Each item has a spec at `specs/`. Order matters — earlier items unblock later ones.
+
+1. **Search bar UX fix** — AppLayout's full-page Compass Arc skips same-pathname navigations; Index pages handle their own scoped loading state. (~10 min)
+2. **EMP-XXXXX migration** — add `positions.type_code` column, repository code generator, one-off backfill of all 28 seeded employees. Sticky codes per Walid. (~1-2 hr) — see [specs/feature-2-employees.md "Revisions locked 2026-04-30"](specs/feature-2-employees.md)
+3. **Sidebar restructure** — Departments/Positions/Offices move to Settings dropdown (Admin only); add Documents (HR/Admin only) + Assets (scoped per role) as top-level sidebar items. (~30 min)
+4. **Employee create form + Tier 1 self-edit** — final React form for `/employees/create`; profile-page edit limited to Tier 1 fields (phone, address, emergency contact, marital status, dependents); HR/Admin edits all. (~45 min)
+5. **Documents feature (was Feature 11, now Phase 1)** — full vertical: schema (`document_types` + `employee_documents`), N-tier backend, Settings page for required matrix config, employee Documents tab (HR/Admin view), HR dashboard widget for missing/expiring docs, ~25 Pest tests. Required Egyptian docs seeded per Walid's HR list. (~1 day) — see [specs/feature-11-documents.md](specs/feature-11-documents.md)
+6. **Assets feature (was Feature 22, now Phase 1)** — full vertical: schema (`asset_categories` + `assets` + `asset_assignments` chain of custody), N-tier backend, sidebar landing with role-scoped data, employee Assets tab (HR/Admin only), Settings page for categories, CSV/Excel export, ~22 Pest tests. (~1 day) — see [specs/feature-22-assets.md](specs/feature-22-assets.md)
+7. **Face enrollment flow** — 3-photo wizard via face-api.js; 12-month re-enrollment scheduler; 5-failed-checkin reset; HR/Admin only enrollment authority; PDPL 24h post-termination purge; ~12 Pest tests. (~1 day) — see [specs/face-enrollment.md](specs/face-enrollment.md)
+8. **Realistic seed overhaul** — every employee gets: profile photo (initials avatar), 4-7 docs based on Egyptian/expat status with intentional 25% partial + 5% incomplete, 2-3 assets (95% laptop, 60% phone, 30% accessories), workweek default Sun-Thu, EMP-XXXXX codes regenerated. (~2 hr)
+9. **Export buttons (CSV + Excel)** — added on Employees / Assets / Documents lists. Uses `maatwebsite/excel`. (~1 hr per list, ~3 hr total)
+
+Total: ~5-6 days of focused work to clear the queue.
 
 ### Skills installed (locally; see `.agents/skills/`)
 impeccable, taste-skill (4), ui-ux-pro-max (8), playwright-skill, obra/superpowers (10), noobygains/godmode (5). Skills are gitignored — they live on this machine, not the repo.
