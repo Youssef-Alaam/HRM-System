@@ -7,15 +7,14 @@ use App\Repositories\Contracts\EmployeeRepositoryInterface;
 use App\Services\EmployeeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
+use Inertia\Inertia;
 
 /**
  * Feature 2 — Employees CRUD.
  *
- * For now this controller exposes JSON-style responses + redirect-on-store
- * so the test suite can drive validation. Feature 9 (Settings) and the
- * Employees frontend pages will swap these to Inertia::render() with full
- * pagination/search params.
+ * index/show render Inertia pages for browser navigation; explicit JSON
+ * requests (Accept: application/json) return the raw data shape so Tinker
+ * and future API consumers don't go through the Inertia layer.
  */
 class EmployeeController extends Controller
 {
@@ -33,14 +32,22 @@ class EmployeeController extends Controller
 
         $filters = $request->only(['search', 'department_id', 'position_id', 'office_id', 'employment_status']);
 
-        // Manager scope: only own team. HR/Admin: all in org (OrgScope handles).
+        // Manager scope: only own team. HR/Admin: whole org (OrgScope handles).
         if ($request->user()->can('employees.view.any') === false
             && $request->user()->can('employees.view.team')) {
             $filters['manager_id'] = $request->user()->employee_id;
         }
 
-        return response()->json([
-            'data' => $this->repo->paginate(25, $filters),
+        $employees = $this->repo->paginate(25, $filters);
+
+        if ($request->wantsJson()) {
+            return response()->json(['data' => $employees]);
+        }
+
+        return Inertia::render('Employees/Index', [
+            'employees' => $employees,
+            'filters' => $filters,
+            'canCreate' => $request->user()->can('employees.create'),
         ]);
     }
 
@@ -50,20 +57,30 @@ class EmployeeController extends Controller
 
         // Self-view always allowed; otherwise need team or any.
         $isSelf = $request->user()->employee_id === $row->id;
-        if (! $isSelf
-            && ! $request->user()->can('employees.view.any')
-            && ! ($request->user()->can('employees.view.team') && $row->manager_id === $request->user()->employee_id)) {
+        $canViewAny = $request->user()->can('employees.view.any');
+        $canViewTeam = $request->user()->can('employees.view.team') && $row->manager_id === $request->user()->employee_id;
+
+        if (! $isSelf && ! $canViewAny && ! $canViewTeam) {
             abort(403);
         }
 
-        return response()->json(['data' => $row]);
+        $row->load(['department', 'position', 'office', 'manager']);
+
+        if ($request->wantsJson()) {
+            return response()->json(['data' => $row]);
+        }
+
+        return Inertia::render('Employees/Show', [
+            'employee' => $row,
+            'canDelete' => $request->user()->can('employees.delete'),
+        ]);
     }
 
     public function store(StoreEmployeeRequest $request): RedirectResponse
     {
         $employee = $this->service->create($request->validated());
 
-        return Redirect::route('employees.show', $employee->id)
+        return redirect()->route('employees.show', $employee->id)
             ->with('status', 'Employee created.');
     }
 
@@ -78,7 +95,7 @@ class EmployeeController extends Controller
 
         $this->service->softDelete($employee, $reason);
 
-        return Redirect::route('employees.index')
+        return redirect()->route('employees.index')
             ->with('status', 'Employee soft-deleted.');
     }
 }
