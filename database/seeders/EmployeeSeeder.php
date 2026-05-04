@@ -22,36 +22,34 @@ class EmployeeSeeder extends Seeder
             return;
         }
 
-        // Make managers first so we can assign reports under them.
-        $managers = Employee::factory()
-            ->count(4)
-            ->state(function () use ($org, $office, $departments, $positions) {
-                $dept = $departments->random();
+        // Sequential rather than count(N): each row's afterMaking computes
+        // its EMP-{type}{NNNN} code from the current DB state, so we need
+        // the previous row to be inserted before the next one is built.
+        // Batched count(N)->create() resolves all afterMaking callbacks
+        // up-front and would hand every row the same code (unique violation).
+        $managers = collect();
+        for ($i = 0; $i < 4; $i++) {
+            $dept = $departments->random();
+            $managers->push(Employee::factory()->create([
+                'org_id' => $org->id,
+                'office_id' => $office?->id,
+                'department_id' => $dept->id,
+                'position_id' => $positions->where('department_id', $dept->id)->random()?->id,
+            ]));
+        }
 
-                return [
-                    'org_id' => $org->id,
-                    'office_id' => $office?->id,
-                    'department_id' => $dept->id,
-                    'position_id' => $positions->where('department_id', $dept->id)->random()?->id,
-                ];
-            })
-            ->create();
-
-        // Then 22 ICs distributed across managers (so total = 22 + 4 = 26 + 4 test users = ~30).
-        Employee::factory()
-            ->count(22)
-            ->state(function () use ($org, $office, $departments, $positions, $managers) {
-                $dept = $departments->random();
-                $manager = $managers->random();
-
-                return [
-                    'org_id' => $org->id,
-                    'office_id' => $office?->id,
-                    'department_id' => $dept->id,
-                    'position_id' => $positions->where('department_id', $dept->id)->random()?->id,
-                    'manager_id' => $manager->id,
-                ];
-            })
-            ->create();
+        // 22 ICs distributed across the managers (total = 22 + 4 = 26 +
+        // 4 test users wired by the test-user seeder = ~30).
+        for ($i = 0; $i < 22; $i++) {
+            $dept = $departments->random();
+            $manager = $managers->random();
+            Employee::factory()->create([
+                'org_id' => $org->id,
+                'office_id' => $office?->id,
+                'department_id' => $dept->id,
+                'position_id' => $positions->where('department_id', $dept->id)->random()?->id,
+                'manager_id' => $manager->id,
+            ]);
+        }
     }
 }

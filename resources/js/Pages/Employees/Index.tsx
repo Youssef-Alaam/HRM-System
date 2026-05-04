@@ -1,6 +1,6 @@
 import AppLayout from '@/Layouts/AppLayout';
 import { Head, Link, router } from '@inertiajs/react';
-import { ChangeEvent, ReactNode, useState } from 'react';
+import { ChangeEvent, ReactNode, useEffect, useState } from 'react';
 
 type EmployeeRow = {
     id: number;
@@ -39,6 +39,29 @@ type Props = {
 
 function Index({ employees, filters, canCreate }: Props) {
     const [search, setSearch] = useState(filters.search ?? '');
+    // Scoped loading state for same-page refreshes (search/filter/pagination).
+    // AppLayout's full-page Compass Arc is suppressed for same-pathname visits,
+    // so the page renders its own pulsing-dot indicator inline.
+    const [searching, setSearching] = useState(false);
+
+    useEffect(() => {
+        const offStart = router.on('start', (event) => {
+            try {
+                const url = new URL(
+                    event.detail.visit.url.toString(),
+                    window.location.origin,
+                );
+                if (url.pathname === '/employees') setSearching(true);
+            } catch {
+                /* invalid URL — ignore */
+            }
+        });
+        const offFinish = router.on('finish', () => setSearching(false));
+        return () => {
+            offStart();
+            offFinish();
+        };
+    }, []);
 
     const onSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -97,6 +120,19 @@ function Index({ employees, filters, canCreate }: Props) {
                             <span className="font-mono text-xs uppercase tracking-[0.24em] text-yzh-text">
                                 Drawing index
                             </span>
+                            {searching && (
+                                <span
+                                    className="ml-1 inline-flex items-center gap-2 font-mono text-[0.6875rem] uppercase tracking-[0.22em] text-yzh-gold"
+                                    role="status"
+                                    aria-live="polite"
+                                >
+                                    <span
+                                        aria-hidden="true"
+                                        className="h-1.5 w-1.5 rounded-full bg-yzh-gold motion-safe:animate-pulse"
+                                    />
+                                    Searching
+                                </span>
+                            )}
                         </div>
 
                         {employees.data.length === 0 ? (

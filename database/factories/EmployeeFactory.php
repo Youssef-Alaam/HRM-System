@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\Office;
 use App\Models\Organization;
 use App\Models\Position;
+use App\Repositories\Contracts\EmployeeRepositoryInterface;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -53,7 +54,12 @@ class EmployeeFactory extends Factory
 
         return [
             'org_id' => fn () => Organization::query()->first()?->id ?? Organization::factory()->create()->id,
-            'employee_code' => 'EMP-'.strtoupper(Str::random(6)),
+            // Random unique placeholder — replaced by configure() right before
+            // insert with the canonical EMP-{type}{NNNN} sticky code derived
+            // from the resolved position. Length 7 keeps it distinct from the
+            // production 5-digit suffix so the regex check below identifies
+            // it as "still needs upgrading".
+            'employee_code' => 'EMP-'.strtoupper(Str::random(7)),
             'first_name' => $first,
             'last_name' => $last,
             'email' => Str::lower($first.'.'.$last.'+'.Str::random(4)).'@yzh.test',
@@ -88,5 +94,34 @@ class EmployeeFactory extends Factory
             'is_expat' => false,
             'speaks_arabic' => true,
         ];
+    }
+
+    /**
+     * Right before the row is inserted, swap the random placeholder code
+     * for the real EMP-{type}{NNNN} sequence based on the resolved
+     * position_id + org_id. Mirrors the production code path so factory-
+     * built fixtures match what HR sees in the UI.
+     *
+     * Skipped when the caller has already supplied a code matching the
+     * production format (so explicit test fixtures aren't overwritten).
+     */
+    public function configure(): static
+    {
+        return $this->afterMaking(function (Employee $employee) {
+            $current = (string) $employee->employee_code;
+            if (preg_match('/^EMP-\d{5}$/', $current)) {
+                return;
+            }
+
+            $orgId = (int) $employee->org_id;
+            $positionId = (int) $employee->position_id;
+
+            if ($orgId <= 0 || $positionId <= 0) {
+                return;
+            }
+
+            $employee->employee_code = app(EmployeeRepositoryInterface::class)
+                ->generateEmployeeCode($orgId, $positionId);
+        });
     }
 }

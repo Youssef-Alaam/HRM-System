@@ -4,12 +4,28 @@ import { Head } from '@inertiajs/react';
 import { ReactNode } from 'react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
+import UpdatePersonalInformationForm from './Partials/UpdatePersonalInformationForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
+
+type EmployeeSelf = {
+    id: number;
+    phone: string | null;
+    address: string | null;
+    emergency_contact_name: string | null;
+    emergency_contact_phone: string | null;
+    marital_status: 'single' | 'married' | 'divorced' | 'widowed' | null;
+    dependents: number;
+};
 
 function Edit({
     mustVerifyEmail,
     status,
-}: PageProps<{ mustVerifyEmail: boolean; status?: string }>) {
+    employee,
+}: PageProps<{
+    mustVerifyEmail: boolean;
+    status?: string;
+    employee: EmployeeSelf | null;
+}>) {
     return (
         <>
             <Head title="Profile" />
@@ -23,11 +39,24 @@ function Edit({
                     />
                 </Section>
 
-                <Section section="01" label="Password">
+                {employee && (
+                    <Section section="01" label="Personal">
+                        <UpdatePersonalInformationForm
+                            employee={employee}
+                            className="max-w-3xl"
+                        />
+                    </Section>
+                )}
+
+                <Section section={employee ? '02' : '01'} label="Password">
                     <UpdatePasswordForm className="max-w-xl" />
                 </Section>
 
-                <Section section="02" label="Danger zone" tone="danger">
+                <Section
+                    section={employee ? '03' : '02'}
+                    label="Danger zone"
+                    tone="danger"
+                >
                     <DeleteUserForm className="max-w-xl" />
                 </Section>
             </div>

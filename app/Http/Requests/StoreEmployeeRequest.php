@@ -40,6 +40,7 @@ class StoreEmployeeRequest extends FormRequest
             'date_of_birth' => ['required', 'date', 'before:today', 'after:1940-01-01'],
             'gender' => ['required', Rule::in(['male', 'female', 'other'])],
             'marital_status' => ['required', Rule::in(['single', 'married', 'divorced', 'widowed'])],
+            'dependents' => ['nullable', 'integer', 'min:0', 'max:30'],
             'nationality' => ['required', 'string', 'max:100'],
             'address' => ['nullable', 'string', 'max:500'],
             'emergency_contact_name' => ['nullable', 'string', 'max:200'],

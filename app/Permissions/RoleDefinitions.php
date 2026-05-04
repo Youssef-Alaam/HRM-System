@@ -119,9 +119,29 @@ class RoleDefinitions
             'announcements.view',
             'announcements.create',
 
+            // documents
+            'documents.upload',
+            'documents.view.any',
+            'documents.delete',
+
+            // assets
+            'assets.view.own',
+            'assets.view.any',
+            'assets.create',
+            'assets.assign',
+            'assets.delete',
+
+            // face enrollment (Feature 5 / face-enrollment.md)
+            'face.view.own',
+            'face.view.any',
+            'face.enroll.any',
+            'face.reset',
+
             // audit & settings
             'audit.view',
             'settings.edit',
+            'settings.document_types.manage',
+            'settings.asset_categories.manage',
 
             // reports & exports
             'reports.run.own',
@@ -162,6 +182,8 @@ class RoleDefinitions
             'reports.run.own',
             'exports.own',
             'exports.pdpl_self_service',
+            'assets.view.own',
+            'face.view.own',
         ];
 
         $manager = array_merge($employee, [
@@ -215,6 +237,15 @@ class RoleDefinitions
             'reports.run.any',
             'exports.any',
             'security.step_up.required',
+            'documents.upload',
+            'documents.view.any',
+            'documents.delete',
+            'assets.view.any',
+            'assets.create',
+            'assets.assign',
+            'face.view.any',
+            'face.enroll.any',
+            'face.reset',
         ]);
 
         return [

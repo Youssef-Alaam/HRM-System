@@ -1,23 +1,27 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import {
     BarChart3,
+    Boxes,
     Building2,
     Calendar,
     CalendarClock,
     ClipboardList,
     Clock,
     FileText,
+    FolderOpen,
     Inbox,
     LayoutDashboard,
     LucideIcon,
     Menu,
     MessageSquare,
+    Network,
     PanelLeftClose,
     PanelLeftOpen,
     Plane,
     ScrollText,
     Settings,
     ShieldCheck,
+    Tag,
     UserCog,
     Users,
     Wallet,
@@ -40,6 +44,18 @@ type NavGroup = {
     items: NavItem[];
 };
 
+/*
+| Sidebar groups (locked 2026-04-30 with Walid):
+| - Departments / Positions / Offices / Holiday calendar moved out of the
+|   sidebar into the Settings dropdown — sidebar stays tight, configuration
+|   surfaces are admin-only.
+| - Org chart is now a peer of Employees in the People group.
+| - Documents is HR + Admin only (gated server-side; sidebar item hidden
+|   for everyone else via permission filter).
+| - Assets is visible to all roles but the controller scopes the data
+|   per role (manager sees own only, etc.) — no permission gate on the
+|   sidebar item.
+*/
 const NAV_GROUPS: NavGroup[] = [
     {
         label: 'Overview',
@@ -51,9 +67,9 @@ const NAV_GROUPS: NavGroup[] = [
         label: 'People',
         items: [
             { label: 'Employees', href: '/employees', icon: Users, permission: 'employees.view.own' },
-            { label: 'Departments', href: '/departments', icon: Building2, permission: 'employees.view.own' },
-            { label: 'Positions', href: '/positions', icon: ClipboardList, permission: 'employees.view.own' },
-            { label: 'Offices', href: '/offices', icon: Building2, permission: 'employees.view.own' },
+            { label: 'Org chart', href: '/org-chart', icon: Network },
+            { label: 'Documents', href: '/documents', icon: FolderOpen, permission: 'documents.view.any' },
+            { label: 'Assets', href: '/assets', icon: Boxes },
         ],
     },
     {
@@ -61,7 +77,6 @@ const NAV_GROUPS: NavGroup[] = [
         items: [
             { label: 'Attendance', href: '/attendance', icon: Clock, permission: 'attendance.view.own' },
             { label: 'Schedules', href: '/schedules', icon: CalendarClock, permission: 'attendance.view.own' },
-            { label: 'Holidays', href: '/holidays', icon: Calendar, permission: 'org.holidays.manage' },
         ],
     },
     {
@@ -99,8 +114,18 @@ const NAV_GROUPS: NavGroup[] = [
     },
 ];
 
-// Admin items live in the top-right user menu, not the sidebar.
+/*
+| Admin Settings dropdown (top-right user menu, hidden from non-admins).
+| Order is the source-of-truth for the drafting-set section identifier
+| `S.0X` shown in the loading-screen kicker.
+*/
 const ADMIN_MENU_ITEMS: NavItem[] = [
+    { label: 'Departments', href: '/departments', icon: Building2, permission: 'org.departments.manage' },
+    { label: 'Positions', href: '/positions', icon: ClipboardList, permission: 'org.positions.manage' },
+    { label: 'Offices', href: '/offices', icon: Building2, permission: 'org.offices.manage' },
+    { label: 'Holiday calendar', href: '/holidays', icon: Calendar, permission: 'org.holidays.manage' },
+    { label: 'Document types', href: '/admin/document-types', icon: Tag, permission: 'settings.document_types.manage' },
+    { label: 'Asset categories', href: '/admin/asset-categories', icon: Tag, permission: 'settings.asset_categories.manage' },
     { label: 'Users & Roles', href: '/admin/users', icon: UserCog, permission: 'users.assign_roles' },
     { label: 'Audit Log', href: '/admin/audit-log', icon: ShieldCheck, permission: 'audit.view' },
     { label: 'System Settings', href: '/admin/settings', icon: Settings, permission: 'settings.edit' },
@@ -152,6 +177,20 @@ function lookupRoute(rawUrl: string): RouteMeta | null {
         return ROUTE_REGISTRY[path] ?? null;
     } catch {
         return null;
+    }
+}
+
+/**
+ * Same-pathname check. Used to skip the full-page loading screen when an
+ * Inertia visit only refines query params (search, filter, pagination) on
+ * the current page — those refreshes mount inline UI on the page itself
+ * (e.g. a pulsing dot next to the results count), not the Compass Arc.
+ */
+function isSamePathnameAs(rawUrl: string, currentPath: string): boolean {
+    try {
+        return new URL(rawUrl, window.location.origin).pathname === currentPath;
+    } catch {
+        return false;
     }
 }
 
@@ -232,7 +271,13 @@ export default function AppLayout({
         let timer: ReturnType<typeof setTimeout> | null = null;
 
         const offStart = router.on('start', (event) => {
-            const meta = lookupRoute(event.detail.visit.url.toString());
+            const url = event.detail.visit.url.toString();
+            // Same-page refreshes (search debounce, filter, pagination) keep
+            // the current page mounted and run their own scoped loading UI.
+            // Skip the full-page Compass Arc here so the search input doesn't
+            // unmount mid-type.
+            if (isSamePathnameAs(url, window.location.pathname)) return;
+            const meta = lookupRoute(url);
             if (!meta) return;
             if (timer) clearTimeout(timer);
             timer = setTimeout(() => {

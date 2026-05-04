@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Organization;
 use App\Models\Position;
+use App\Support\PositionType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -15,11 +16,14 @@ class PositionFactory extends Factory
 
     public function definition(): array
     {
+        $title = fake()->jobTitle();
+
         return [
             'org_id' => Organization::factory(),
-            'title' => fake()->jobTitle(),
+            'title' => $title,
             'description' => fake()->sentence(),
             'level' => fake()->numberBetween(1, 5),
+            'type_code' => PositionType::inferFromTitle($title),
             'is_active' => true,
             'version' => 1,
         ];

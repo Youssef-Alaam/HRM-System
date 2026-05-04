@@ -17,6 +17,9 @@ class DatabaseSeeder extends Seeder
             HolidaySeeder::class,
             UserSeeder::class,
             EmployeeSeeder::class,
+            DocumentTypeSeeder::class,
+            AssetCategorySeeder::class,
+            AssetSeeder::class,
         ]);
     }
 }

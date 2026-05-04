@@ -20,7 +20,8 @@ class PlaceholderRoutesTest extends TestCase
 
     private function userWithRole(string $role): User
     {
-        $user = User::factory()->create();
+        $org = \App\Models\Organization::factory()->create();
+        $user = User::factory()->create(['org_id' => $org->id]);
         $user->assignRole($role);
 
         return $user;
@@ -105,6 +106,74 @@ class PlaceholderRoutesTest extends TestCase
         foreach (RoleDefinitions::roles() as $role) {
             $user = $this->userWithRole($role);
             $this->actingAs($user)->get('/messages')->assertOk();
+        }
+    }
+
+    public function test_org_chart_route_open_for_all_roles(): void
+    {
+        foreach (RoleDefinitions::roles() as $role) {
+            $user = $this->userWithRole($role);
+            $this->actingAs($user)->get('/org-chart')->assertOk();
+        }
+    }
+
+    public function test_assets_route_open_for_all_roles(): void
+    {
+        // Sidebar item visible to everyone; controller scopes data per role
+        // (manager only sees own assets, etc. — Walid 2026-04-30).
+        foreach (RoleDefinitions::roles() as $role) {
+            $user = $this->userWithRole($role);
+            $this->actingAs($user)->get('/assets')->assertOk();
+        }
+    }
+
+    public function test_documents_route_blocks_employee_and_manager(): void
+    {
+        $employee = $this->userWithRole(RoleDefinitions::ROLE_EMPLOYEE);
+        $this->actingAs($employee)->get('/documents')->assertStatus(403);
+
+        $manager = $this->userWithRole(RoleDefinitions::ROLE_MANAGER);
+        $this->actingAs($manager)->get('/documents')->assertStatus(403);
+    }
+
+    public function test_documents_route_open_for_hr_and_admin(): void
+    {
+        foreach ([RoleDefinitions::ROLE_HR, RoleDefinitions::ROLE_ADMIN] as $role) {
+            $user = $this->userWithRole($role);
+            $this->actingAs($user)->get('/documents')->assertOk();
+        }
+    }
+
+    public function test_departments_positions_offices_now_require_manage_permission(): void
+    {
+        // Locked 2026-04-30: these were sidebar items open to any
+        // authenticated user; now they live under Settings (admin/HR only).
+        $employee = $this->userWithRole(RoleDefinitions::ROLE_EMPLOYEE);
+        $manager = $this->userWithRole(RoleDefinitions::ROLE_MANAGER);
+
+        foreach (['/departments', '/positions', '/offices'] as $path) {
+            $this->actingAs($employee)->get($path)->assertStatus(403);
+            $this->actingAs($manager)->get($path)->assertStatus(403);
+        }
+
+        foreach ([RoleDefinitions::ROLE_HR, RoleDefinitions::ROLE_ADMIN] as $role) {
+            $user = $this->userWithRole($role);
+            foreach (['/departments', '/positions', '/offices'] as $path) {
+                $this->actingAs($user)->get($path)->assertOk();
+            }
+        }
+    }
+
+    public function test_document_types_and_asset_categories_admin_only(): void
+    {
+        $hr = $this->userWithRole(RoleDefinitions::ROLE_HR);
+        foreach (['/admin/document-types', '/admin/asset-categories'] as $path) {
+            $this->actingAs($hr)->get($path)->assertStatus(403);
+        }
+
+        $admin = $this->userWithRole(RoleDefinitions::ROLE_ADMIN);
+        foreach (['/admin/document-types', '/admin/asset-categories'] as $path) {
+            $this->actingAs($admin)->get($path)->assertOk();
         }
     }
 }

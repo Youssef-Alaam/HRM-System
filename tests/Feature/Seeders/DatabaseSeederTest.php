@@ -109,6 +109,41 @@ class DatabaseSeederTest extends TestCase
         $this->assertGreaterThan(0, $withManagers, 'Some employees should report to managers');
     }
 
+    public function test_seeded_employees_use_emp_xxxxx_code_format(): void
+    {
+        $codes = Employee::query()->pluck('employee_code');
+
+        $this->assertGreaterThan(0, $codes->count(), 'Seeder should produce employees');
+        foreach ($codes as $code) {
+            $this->assertMatchesRegularExpression(
+                '/^EMP-\d{5}$/',
+                $code,
+                "Seeded employee_code does not match EMP-XXXXX: {$code}",
+            );
+        }
+
+        // No duplicates across the seeded set — the (org_id, employee_code)
+        // unique index enforces this in MySQL, but verifying here surfaces
+        // a regression if the index ever drops or the generator drifts.
+        $this->assertSame(
+            $codes->count(),
+            $codes->unique()->count(),
+            'EMP-XXXXX codes must be unique across the seeded set',
+        );
+    }
+
+    public function test_seeded_positions_have_a_type_code_in_the_valid_range(): void
+    {
+        $positions = Position::all();
+
+        $this->assertGreaterThan(0, $positions->count());
+        foreach ($positions as $position) {
+            $this->assertNotNull($position->type_code, "Position {$position->title} missing type_code");
+            $this->assertGreaterThanOrEqual(0, (int) $position->type_code);
+            $this->assertLessThanOrEqual(9, (int) $position->type_code);
+        }
+    }
+
     public function test_seeder_is_idempotent(): void
     {
         $this->seed(DatabaseSeeder::class);

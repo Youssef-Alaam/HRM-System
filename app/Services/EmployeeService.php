@@ -47,8 +47,10 @@ class EmployeeService extends BaseService
             ]);
             $user->assignRole(RoleDefinitions::ROLE_EMPLOYEE);
 
-            // 2. Create the Employee row, linked.
-            $employeeCode = $this->repo->generateEmployeeCode($orgId);
+            // 2. Create the Employee row, linked. Code format = EMP-XXXXX
+            // where the first digit is the position's type_code (0-9) and
+            // the remaining four are the tenure sequence within that bucket.
+            $employeeCode = $this->repo->generateEmployeeCode($orgId, (int) $data['position_id']);
             $employee = $this->repo->create(array_merge($data, [
                 'org_id' => $orgId,
                 'user_id' => $user->id,

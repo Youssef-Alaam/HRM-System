@@ -38,3 +38,7 @@ function actingAsRole(string $role, ?\App\Models\Organization $org = null): \App
 
     return $user;
 }
+
+require_once __DIR__.'/Helpers/Documents.php';
+require_once __DIR__.'/Helpers/Assets.php';
+require_once __DIR__.'/Helpers/FaceEnrollment.php';

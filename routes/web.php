@@ -1,7 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin\AssetCategoryController as AdminAssetCategoryController;
+use App\Http\Controllers\Admin\DocumentTypeController as AdminDocumentTypeController;
+use App\Http\Controllers\AssetController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentsController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\EmployeeDocumentController;
+use App\Http\Controllers\FaceEnrollmentController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -38,29 +44,118 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
     Route::get('/employees', [EmployeeController::class, 'index'])
         ->middleware('permission:employees.view.team|employees.view.any')
         ->name('employees.index');
+    Route::get('/employees/create', [EmployeeController::class, 'create'])
+        ->middleware('permission:employees.create')
+        ->name('employees.create');
     Route::post('/employees', [EmployeeController::class, 'store'])
         ->middleware('permission:employees.create')
         ->name('employees.store');
     Route::get('/employees/{employee}', [EmployeeController::class, 'show'])
         ->whereNumber('employee')
         ->name('employees.show');
+    Route::patch('/employees/{employee}', [EmployeeController::class, 'update'])
+        ->whereNumber('employee')
+        ->name('employees.update');
     Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])
         ->whereNumber('employee')
         ->middleware('permission:employees.delete')
         ->name('employees.destroy');
+    // Org chart — visible to any authenticated user (employees, managers,
+    // HR, admin). Data scoping happens server-side per Decision 13.
+    Route::get('/org-chart', $placeholder('Org chart', 'Department hierarchy and reporting tree.'))
+        ->name('placeholder.org-chart');
+    // Documents — HR + Admin only (Feature 11). Sidebar landing lists
+    // every employee's compliance state; per-employee uploads live under
+    // /employees/{id}/documents.
+    Route::get('/documents', [DocumentsController::class, 'index'])
+        ->middleware('permission:documents.view.any')
+        ->name('documents.index');
+    Route::post('/employees/{employee}/documents', [EmployeeDocumentController::class, 'store'])
+        ->whereNumber('employee')
+        ->middleware('permission:documents.upload')
+        ->name('employees.documents.store');
+    Route::patch('/employees/{employee}/documents/{document}', [EmployeeDocumentController::class, 'update'])
+        ->whereNumber('employee')->whereNumber('document')
+        ->middleware('permission:documents.upload')
+        ->name('employees.documents.update');
+    Route::delete('/employees/{employee}/documents/{document}', [EmployeeDocumentController::class, 'destroy'])
+        ->whereNumber('employee')->whereNumber('document')
+        ->name('employees.documents.destroy');
+    Route::get('/employees/{employee}/documents/{document}/download', [EmployeeDocumentController::class, 'download'])
+        ->whereNumber('employee')->whereNumber('document')
+        ->middleware('permission:documents.view.any')
+        ->name('employees.documents.download');
+
+    // Face enrollment (per face-enrollment.md spec) — HR + Admin only.
+    Route::post('/employees/{employee}/face-enrollment', [FaceEnrollmentController::class, 'store'])
+        ->whereNumber('employee')
+        ->middleware('permission:face.enroll.any')
+        ->name('employees.face-enrollment.store');
+    Route::post('/employees/{employee}/face-enrollment/reset', [FaceEnrollmentController::class, 'reset'])
+        ->whereNumber('employee')
+        ->middleware('permission:face.reset')
+        ->name('employees.face-enrollment.reset');
+    // Assets — Feature 22 (Phase 1 promotion). Sidebar item visible to
+    // every authenticated user; the controller scopes the response per
+    // role (employees + managers see own current only; HR + Admin see all).
+    Route::get('/assets', [AssetController::class, 'index'])
+        ->name('assets.index');
+    Route::get('/assets/create', [AssetController::class, 'create'])
+        ->middleware('permission:assets.create')
+        ->name('assets.create');
+    Route::post('/assets', [AssetController::class, 'store'])
+        ->middleware('permission:assets.create')
+        ->name('assets.store');
+    Route::get('/assets/{asset}', [AssetController::class, 'show'])
+        ->whereNumber('asset')
+        ->middleware('permission:assets.view.any')
+        ->name('assets.show');
+    Route::patch('/assets/{asset}', [AssetController::class, 'update'])
+        ->whereNumber('asset')
+        ->middleware('permission:assets.create')
+        ->name('assets.update');
+    Route::post('/assets/{asset}/assign', [AssetController::class, 'assign'])
+        ->whereNumber('asset')
+        ->middleware('permission:assets.assign')
+        ->name('assets.assign');
+    Route::post('/assets/{asset}/return', [AssetController::class, 'return'])
+        ->whereNumber('asset')
+        ->middleware('permission:assets.assign')
+        ->name('assets.return');
+    Route::post('/assets/{asset}/mark-lost', [AssetController::class, 'markLost'])
+        ->whereNumber('asset')
+        ->middleware('permission:assets.assign')
+        ->name('assets.mark-lost');
+    Route::post('/assets/{asset}/mark-damaged', [AssetController::class, 'markDamaged'])
+        ->whereNumber('asset')
+        ->middleware('permission:assets.assign')
+        ->name('assets.mark-damaged');
+    Route::delete('/assets/{asset}', [AssetController::class, 'destroy'])
+        ->whereNumber('asset')
+        ->middleware('permission:assets.delete')
+        ->name('assets.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Settings (admin) — moved out of the sidebar into the top-right dropdown
+    |--------------------------------------------------------------------------
+    | Departments / Positions / Offices / Holidays were sidebar items in F7;
+    | locked 2026-04-30 to live under Settings. Their existing permissions
+    | are the org.* manage gates (HR + Admin only).
+    */
     Route::get('/departments', $placeholder('Departments', 'Department hierarchy and reporting structure.'))
-        ->middleware('permission:employees.view.own')->name('placeholder.departments');
+        ->middleware('permission:org.departments.manage')->name('placeholder.departments');
     Route::get('/positions', $placeholder('Positions', 'Job titles and levels per department.'))
-        ->middleware('permission:employees.view.own')->name('placeholder.positions');
+        ->middleware('permission:org.positions.manage')->name('placeholder.positions');
     Route::get('/offices', $placeholder('Offices', 'Physical locations with GPS coordinates and check-in radius.'))
-        ->middleware('permission:employees.view.own')->name('placeholder.offices');
+        ->middleware('permission:org.offices.manage')->name('placeholder.offices');
 
     // Time
     Route::get('/attendance', $placeholder('Attendance', 'GPS + selfie check-in records with face verification.'))
         ->middleware('permission:attendance.view.own')->name('placeholder.attendance');
     Route::get('/schedules', $placeholder('Schedules', 'Shift assignments per employee and team.'))
         ->middleware('permission:attendance.view.own')->name('placeholder.schedules');
-    Route::get('/holidays', $placeholder('Holidays', 'Egyptian public holidays and make-up day rules.'))
+    Route::get('/holidays', $placeholder('Holiday calendar', 'Egyptian public holidays and make-up day rules.'))
         ->middleware('permission:org.holidays.manage')->name('placeholder.holidays');
 
     // Leave
@@ -90,6 +185,28 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
         ->middleware('permission:announcements.view')->name('placeholder.announcements');
 
     // Settings (admin)
+    Route::middleware('permission:settings.document_types.manage')
+        ->prefix('admin/document-types')
+        ->name('admin.document-types.')
+        ->group(function () {
+            Route::get('/', [AdminDocumentTypeController::class, 'index'])->name('index');
+            Route::post('/', [AdminDocumentTypeController::class, 'store'])->name('store');
+            Route::patch('/{type}', [AdminDocumentTypeController::class, 'update'])
+                ->whereNumber('type')->name('update');
+            Route::delete('/{type}', [AdminDocumentTypeController::class, 'destroy'])
+                ->whereNumber('type')->name('destroy');
+        });
+    Route::middleware('permission:settings.asset_categories.manage')
+        ->prefix('admin/asset-categories')
+        ->name('admin.asset-categories.')
+        ->group(function () {
+            Route::get('/', [AdminAssetCategoryController::class, 'index'])->name('index');
+            Route::post('/', [AdminAssetCategoryController::class, 'store'])->name('store');
+            Route::patch('/{category}', [AdminAssetCategoryController::class, 'update'])
+                ->whereNumber('category')->name('update');
+            Route::delete('/{category}', [AdminAssetCategoryController::class, 'destroy'])
+                ->whereNumber('category')->name('destroy');
+        });
     Route::get('/admin/users', $placeholder('Users & Roles', 'Create accounts, assign roles, toggle per-user permission overrides.'))
         ->middleware('permission:users.assign_roles')->name('placeholder.admin.users');
     Route::get('/admin/audit-log', $placeholder('Audit Log', 'Immutable trail of every write across the system.'))

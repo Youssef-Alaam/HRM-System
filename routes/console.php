@@ -28,3 +28,14 @@ Schedule::command('handoff:send --since=24h')
         // Don't crash the scheduler if mail fails — log and move on.
         logger()->warning('Daily handoff digest failed to send');
     });
+
+/*
+|--------------------------------------------------------------------------
+| PDPL face-data purge
+|--------------------------------------------------------------------------
+| 24h after employees.deleted_at is set, wipe descriptors + photos.
+| Runs daily at 03:00 Cairo. Idempotent — already-purged rows no-op.
+*/
+Schedule::command('face:purge-terminated')
+    ->timezone('Africa/Cairo')
+    ->dailyAt('03:00');

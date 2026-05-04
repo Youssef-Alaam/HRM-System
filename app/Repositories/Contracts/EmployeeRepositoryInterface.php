@@ -35,5 +35,11 @@ interface EmployeeRepositoryInterface
 
     public function softDelete(Employee $employee, string $reason): bool;
 
-    public function generateEmployeeCode(int $orgId): string;
+    /**
+     * Produce the next sticky employee_code in the EMP-XXXXX format. The
+     * leading digit is the position's type_code (0-9); the remaining four
+     * digits are the tenure-ordered sequence within that type bucket.
+     * Throws DomainException if the bucket has filled past 9999 entries.
+     */
+    public function generateEmployeeCode(int $orgId, int $positionId): string;
 }

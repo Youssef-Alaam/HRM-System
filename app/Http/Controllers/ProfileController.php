@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Employee;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,9 +19,30 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        // Tier 1 self-edit on the Profile page (locked 2026-04-30 with
+        // Walid). When the user has an attached Employee record we expose
+        // the Self-tier fields so they can keep their personal info
+        // current without filing a request through HR.
+        $employee = null;
+        if ($request->user()->employee_id) {
+            $row = Employee::query()->find($request->user()->employee_id);
+            if ($row) {
+                $employee = [
+                    'id' => $row->id,
+                    'phone' => $row->phone,
+                    'address' => $row->address,
+                    'emergency_contact_name' => $row->emergency_contact_name,
+                    'emergency_contact_phone' => $row->emergency_contact_phone,
+                    'marital_status' => $row->marital_status,
+                    'dependents' => (int) ($row->dependents ?? 0),
+                ];
+            }
+        }
+
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
+            'employee' => $employee,
         ]);
     }
 

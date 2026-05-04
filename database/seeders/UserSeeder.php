@@ -9,9 +9,9 @@ use App\Models\Organization;
 use App\Models\Position;
 use App\Models\User;
 use App\Permissions\RoleDefinitions;
+use App\Repositories\Contracts\EmployeeRepositoryInterface;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
@@ -74,11 +74,18 @@ class UserSeeder extends Seeder
             ],
         ];
 
+        $employeeRepo = app(EmployeeRepositoryInterface::class);
+
         foreach ($seeds as $seed) {
+            // Each call reads the max EMP-{type}{NNNN} in this bucket and
+            // adds 1, so sequential test users land in tenure order within
+            // their respective position type buckets.
             $employee = Employee::firstOrCreate(
                 ['org_id' => $org->id, 'email' => $seed['email']],
                 [
-                    'employee_code' => 'EMP-'.strtoupper(Str::random(6)),
+                    'employee_code' => $seed['position']
+                        ? $employeeRepo->generateEmployeeCode($org->id, $seed['position']->id)
+                        : 'EMP-90001',
                     'first_name' => $seed['first_name'],
                     'last_name' => $seed['last_name'],
                     'phone' => '+201111111111',
