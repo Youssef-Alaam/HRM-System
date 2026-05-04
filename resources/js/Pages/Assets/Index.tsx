@@ -1,3 +1,4 @@
+import ExportButtons from '@/Components/ExportButtons';
 import AppLayout from '@/Layouts/AppLayout';
 import { formatDate, formatMoneyEgp } from '@/lib/format';
 import { Head, Link, router } from '@inertiajs/react';
@@ -167,14 +168,17 @@ function OrgView({ assets, categories, filters, canCreate, statuses }: OrgProps)
                                 </span>
                             )}
                         </div>
-                        {canCreate && (
-                            <Link
-                                href="/assets/create"
-                                className="group inline-flex min-h-11 items-center gap-3 border border-yzh-gold px-4 py-2 font-mono text-xs uppercase tracking-[0.22em] text-yzh-gold transition-colors duration-150 ease-out hover:bg-yzh-gold hover:text-yzh-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold"
-                            >
-                                New asset
-                            </Link>
-                        )}
+                        <div className="flex items-center gap-2">
+                            <ExportButtons resource="assets" />
+                            {canCreate && (
+                                <Link
+                                    href="/assets/create"
+                                    className="group inline-flex min-h-11 items-center gap-3 border border-yzh-gold px-4 py-2 font-mono text-xs uppercase tracking-[0.22em] text-yzh-gold transition-colors duration-150 ease-out hover:bg-yzh-gold hover:text-yzh-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold"
+                                >
+                                    New asset
+                                </Link>
+                            )}
+                        </div>
                     </div>
 
                     <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">

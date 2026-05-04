@@ -1,3 +1,4 @@
+import ExportButtons from '@/Components/ExportButtons';
 import AppLayout from '@/Layouts/AppLayout';
 import { Head, Link } from '@inertiajs/react';
 import { ChangeEvent, ReactNode, useMemo, useState } from 'react';
@@ -83,7 +84,7 @@ function Index({ employees, totals }: Props) {
                 </Section>
 
                 <Section number="01" label="Roster compliance">
-                    <div className="mb-6">
+                    <div className="mb-6 flex flex-wrap items-center gap-3">
                         <input
                             type="search"
                             value={search}
@@ -91,6 +92,7 @@ function Index({ employees, totals }: Props) {
                             placeholder="Search by name or employee code"
                             className="block h-11 w-full max-w-md rounded-md border border-yzh-bone-soft bg-white px-3 text-sm text-yzh-ink placeholder:text-yzh-text shadow-sm transition-colors focus:border-yzh-gold focus:outline-none focus:ring-2 focus:ring-yzh-gold/30"
                         />
+                        <ExportButtons resource="documents" />
                     </div>
                     {filtered.length === 0 ? (
                         <div className="mt-8 text-sm text-yzh-slate">

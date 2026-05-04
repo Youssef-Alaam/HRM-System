@@ -1,3 +1,4 @@
+import ExportButtons from '@/Components/ExportButtons';
 import AppLayout from '@/Layouts/AppLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { ChangeEvent, ReactNode, useEffect, useState } from 'react';
@@ -89,14 +90,17 @@ function Index({ employees, filters, canCreate }: Props) {
                                     Roster / {employees.total} active
                                 </span>
                             </div>
-                            {canCreate && (
-                                <Link
-                                    href="/employees/create"
-                                    className="group inline-flex min-h-11 items-center gap-3 border border-yzh-gold px-4 py-2 font-mono text-xs uppercase tracking-[0.22em] text-yzh-gold transition-colors duration-150 ease-out hover:bg-yzh-gold hover:text-yzh-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold"
-                                >
-                                    New employee
-                                </Link>
-                            )}
+                            <div className="flex items-center gap-2">
+                                <ExportButtons resource="employees" />
+                                {canCreate && (
+                                    <Link
+                                        href="/employees/create"
+                                        className="group inline-flex min-h-11 items-center gap-3 border border-yzh-gold px-4 py-2 font-mono text-xs uppercase tracking-[0.22em] text-yzh-gold transition-colors duration-150 ease-out hover:bg-yzh-gold hover:text-yzh-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yzh-gold"
+                                    >
+                                        New employee
+                                    </Link>
+                                )}
+                            </div>
                         </div>
 
                         <div className="mt-6">

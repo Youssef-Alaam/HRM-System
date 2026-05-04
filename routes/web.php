@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentsController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDocumentController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FaceEnrollmentController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\ProfileController;
@@ -207,6 +208,20 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
             Route::delete('/{category}', [AdminAssetCategoryController::class, 'destroy'])
                 ->whereNumber('category')->name('destroy');
         });
+    /*
+    |--------------------------------------------------------------------------
+    | Exports (queue item 9, locked 2026-04-30)
+    |--------------------------------------------------------------------------
+    | CSV + XLSX downloads for the three list surfaces. Gated on
+    | exports.any (HR + Admin) — tighter than the read permissions on
+    | purpose: bulk extract is a higher-trust action than browsing.
+    */
+    Route::middleware('permission:exports.any')->prefix('exports')->name('exports.')->group(function () {
+        Route::get('/employees', [ExportController::class, 'employees'])->name('employees');
+        Route::get('/assets', [ExportController::class, 'assets'])->name('assets');
+        Route::get('/documents', [ExportController::class, 'documents'])->name('documents');
+    });
+
     Route::get('/admin/users', $placeholder('Users & Roles', 'Create accounts, assign roles, toggle per-user permission overrides.'))
         ->middleware('permission:users.assign_roles')->name('placeholder.admin.users');
     Route::get('/admin/audit-log', $placeholder('Audit Log', 'Immutable trail of every write across the system.'))
