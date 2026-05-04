@@ -498,11 +498,11 @@ When tasks are split:
 ## 📍 Current status
 
 **Phase:** Feature Phase 1
-**Current task:** Feature 2 (Employees) — backend partial shipped (create/list/show/soft-delete + Inertia pages); pending: EMP-XXXXX format change, create form, Tier 1/2 edit model, full ~30 Pest tests.
-**Last session (2026-04-30):** F12.5 closed; F13 waived; Feature 1 Dashboard fully shipped (11 tests, role-aware widgets, 60s polling); Feature 2 Employees backend partial (9 tests). Two design-discussion rounds locked: EMP-XXXXX format with type prefix + tenure sequence; sidebar restructure (Departments/Positions/Offices → Settings menu); Documents (Feature 11) + Assets (Feature 22) promoted to Phase 1; required-doc matrix locked with 7 Egyptian + 3 expat docs; face enrollment via face-api.js (3 photos, 12-month re-enroll, 5-fail trigger); HR-only doc upload; export buttons everywhere; all filters; medium-depth seed.
-**Pre-approved chunk:** F3 → Feature 1 done. Feature 2 + sidebar restructure + new Features 11 + 22 + face enrollment up next, all locked via specs/ files.
+**Current task:** Feature 3 (Org Chart) — starting fresh after Phase 1 queue closeout.
+**Last session (2026-05-04):** Phase 1 queue cleared — items 1, 2, 3, 4, 5, 6, 7, 9 ✅ committed in `a70472e` + `aac2710`. Item 8 (per-employee document seeding for compliance demo) flagged DEFERRED — non-blocking polish, asset distribution already lives in `AssetSeeder` per spec.
+**Pre-approved chunk:** Phase 1 queue done; moving on to Feature 3.
 **Blockers:** None
-**Next milestone:** Feature 2 fully shipped + Documents + Assets + face enrollment → Feature 3 (Org Chart)
+**Next milestone:** Feature 3 (Org Chart) → 4 (My Schedule) → 5 (Attendance + Checkpoint B) → 6 (Leave) → 7 (Approvals) → 8 (Leave Calendar + Checkpoint C).
 
 ## 📦 Phase 1 build queue (locked 2026-04-30 across 3 design-discussion rounds)
 
@@ -515,10 +515,12 @@ Working backlog for the next session(s). Each item has a spec at `specs/`. Order
 5. **Documents feature (was Feature 11, now Phase 1)** — full vertical: schema (`document_types` + `employee_documents`), N-tier backend, Settings page for required matrix config, employee Documents tab (HR/Admin view), HR dashboard widget for missing/expiring docs, ~25 Pest tests. Required Egyptian docs seeded per Walid's HR list. (~1 day) — see [specs/feature-11-documents.md](specs/feature-11-documents.md)
 6. **Assets feature (was Feature 22, now Phase 1)** — full vertical: schema (`asset_categories` + `assets` + `asset_assignments` chain of custody), N-tier backend, sidebar landing with role-scoped data, employee Assets tab (HR/Admin only), Settings page for categories, CSV/Excel export, ~22 Pest tests. (~1 day) — see [specs/feature-22-assets.md](specs/feature-22-assets.md)
 7. **Face enrollment flow** — 3-photo wizard via face-api.js; 12-month re-enrollment scheduler; 5-failed-checkin reset; HR/Admin only enrollment authority; PDPL 24h post-termination purge; ~12 Pest tests. (~1 day) — see [specs/face-enrollment.md](specs/face-enrollment.md)
-8. **Realistic seed overhaul** — every employee gets: profile photo (initials avatar), 4-7 docs based on Egyptian/expat status with intentional 25% partial + 5% incomplete, 2-3 assets (95% laptop, 60% phone, 30% accessories), workweek default Sun-Thu, EMP-XXXXX codes regenerated. (~2 hr)
-9. **Export buttons (CSV + Excel)** — added on Employees / Assets / Documents lists. Uses `maatwebsite/excel`. (~1 hr per list, ~3 hr total)
+8. **Realistic seed overhaul** — 🟨 PARTIAL (deferred 2026-05-04). Asset distribution per spec (95% laptop / 60% phone / 30% accessories + chain-of-custody demo) already lives in `AssetSeeder`. Profile photos handled frontend via initials avatar — no DB state needed. **Remaining gap:** per-employee `EmployeeDocumentSeeder` creating 4-7 doc rows per employee with intentional 25% partial + 5% incomplete, so the Documents compliance dashboard demos with realistic data instead of empty. Non-blocking — UI uploads work today; revisit before Walid's Checkpoint C walkthrough.
+9. **Export buttons (CSV + Excel)** — ✅ Shipped 2026-05-04 in `aac2710`. `maatwebsite/excel ^3.1` installed; three FromCollection exports + one ExportController + `<ExportButtons>` primitive on Employees / Assets / Documents Index pages. 7 new Pest tests; gated `exports.any` (HR + Admin); multi-tenant scoped.
 
 Total: ~5-6 days of focused work to clear the queue.
+
+**Status (2026-05-04):** 8/9 items shipped. Item 8 (doc seeder) deferred as polish.
 
 ### Skills installed (locally; see `.agents/skills/`)
 impeccable, taste-skill (4), ui-ux-pro-max (8), playwright-skill, obra/superpowers (10), noobygains/godmode (5). Skills are gitignored — they live on this machine, not the repo.

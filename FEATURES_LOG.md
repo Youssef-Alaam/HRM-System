@@ -157,3 +157,72 @@ Backend N-tier for the `Employees` resource is wired:
 - Modified: `app/Providers/AppServiceProvider.php` — bound `EmployeeRepositoryInterface`
 - Modified: `routes/web.php` — replaced `/employees` placeholder with the resource routes
 - Modified: `tests/Feature/Layout/PlaceholderRoutesTest.php` — rewrote employee-route test for the tighter permission gate
+
+---
+
+## Feature 3 — Org Chart ✅
+
+**Shipped:** 2026-05-04
+**Spec:** [specs/feature-3-org-chart.md](specs/feature-3-org-chart.md)
+**Tests added:** 8 (in `tests/Feature/OrgChart/OrgChartTest.php`)
+**Total tests after:** 267 passing, 1298 assertions
+
+### What it does
+
+Read-only reporting tree at `GET /org-chart`. Any authenticated user can view; clicking a node navigates to `/employees/{id}` (gated by the existing `employees.view.*` policies). The chart is a forest: every active employee with `manager_id IS NULL` becomes a root; their direct reports are children, recursively.
+
+The service applies two important data-cleaning rules:
+- **Inactive skip-up.** Terminated/inactive employees are excluded as nodes. Their reports re-parent to the next active ancestor up the chain rather than orphaning.
+- **Cycle-safe.** A visited-set guards both the upward walk (`findActiveAncestor`) and the downward render (`serializeNode`). Bad data (manager_id loop) becomes a `Log::warning` + duplicate roots, not an infinite recursion.
+
+### Where to find it
+
+- Route: `GET /org-chart` → `org-chart.index`
+- Controller: [`app/Http/Controllers/OrgChartController.php`](app/Http/Controllers/OrgChartController.php)
+- Service: [`app/Services/OrgChartService.php`](app/Services/OrgChartService.php) (no repository — single SELECT through the model with eager loads)
+- Frontend: [`resources/js/Pages/OrgChart.tsx`](resources/js/Pages/OrgChart.tsx) using `react-organizational-chart ^2.x`
+
+### How to verify
+
+1. Sign in as any seeded test user (`admin@yzh.test` / `password` works).
+2. Click "Org chart" in the People sidebar group.
+3. You should see the seeded reporting tree: 4 manager roots, ~22 ICs distributed under them, each clickable to navigate to that employee's detail page.
+4. Inactive employees (none seeded by default) would not appear as nodes; their reports would re-parent up.
+
+### Key tests
+
+- `it redirects guests to login`
+- `it renders for any authenticated user`
+- `it returns NULL-manager employees as roots`
+- `it nests reports recursively` ← 4-level deep tree resolves correctly
+- `it returns empty roots when there are no employees`
+- `it excludes terminated employees and re-parents their reports to the manager above` ← skip-up
+- `it does not leak employees from another org` ← multi-tenant
+- `it does not infinite-loop when two managers point at each other` ← cycle safety
+
+### Edge cases handled
+
+- Cycles in `manager_id` (data error) — visited-set short-circuits, logs warning, treats both as separate roots.
+- Inactive ancestor — reports re-parent up the chain, not orphaned.
+- Empty org — empty state with copy.
+- Multi-tenant — `OrgScope` + explicit test verifying org-A cannot see org-B's tree.
+
+### Compliance citations
+
+None. Read-only aggregation.
+
+### Known limitations / deferred
+
+- **Department-hierarchy mode** (rollup of `parent_department_id`) — deferred. Reporting tree is the primary mental model; revisit when users actually ask.
+- **Print stylesheet** — deferred. CSS-only addition when a user asks for a printed org chart.
+- **Pan/zoom controls** — deferred. The default horizontal-scroll wrap on narrow viewports is sufficient for v1.
+
+### Files touched
+
+- New: `app/Http/Controllers/OrgChartController.php`
+- New: `app/Services/OrgChartService.php`
+- New: `resources/js/Pages/OrgChart.tsx`
+- New: `tests/Feature/OrgChart/OrgChartTest.php`
+- New: `specs/feature-3-org-chart.md`
+- Modified: `routes/web.php` — replaced `/org-chart` placeholder with the controller route
+- Modified: `package.json` — added `react-organizational-chart`

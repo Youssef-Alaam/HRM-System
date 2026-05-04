@@ -10,6 +10,7 @@ use App\Http\Controllers\EmployeeDocumentController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FaceEnrollmentController;
 use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\OrgChartController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -63,8 +64,8 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
         ->name('employees.destroy');
     // Org chart — visible to any authenticated user (employees, managers,
     // HR, admin). Data scoping happens server-side per Decision 13.
-    Route::get('/org-chart', $placeholder('Org chart', 'Department hierarchy and reporting tree.'))
-        ->name('placeholder.org-chart');
+    Route::get('/org-chart', [OrgChartController::class, 'index'])
+        ->name('org-chart.index');
     // Documents — HR + Admin only (Feature 11). Sidebar landing lists
     // every employee's compliance state; per-employee uploads live under
     // /employees/{id}/documents.
