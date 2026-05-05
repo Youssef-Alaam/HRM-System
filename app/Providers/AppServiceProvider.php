@@ -12,12 +12,14 @@ use App\Repositories\Contracts\EmployeeDocumentRepositoryInterface;
 use App\Repositories\Contracts\EmployeeRepositoryInterface;
 use App\Repositories\Contracts\FaceEnrollmentRepositoryInterface;
 use App\Repositories\Contracts\HolidayRepositoryInterface;
+use App\Repositories\Contracts\ScheduleRepositoryInterface;
 use App\Repositories\DashboardRepository;
 use App\Repositories\DocumentTypeRepository;
 use App\Repositories\EmployeeDocumentRepository;
 use App\Repositories\EmployeeRepository;
 use App\Repositories\FaceEnrollmentRepository;
 use App\Repositories\HolidayRepository;
+use App\Repositories\ScheduleRepository;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -38,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
         AssetCategoryRepositoryInterface::class => AssetCategoryRepository::class,
         AssetRepositoryInterface::class => AssetRepository::class,
         FaceEnrollmentRepositoryInterface::class => FaceEnrollmentRepository::class,
+        ScheduleRepositoryInterface::class => ScheduleRepository::class,
     ];
 
     /**

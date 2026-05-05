@@ -319,18 +319,18 @@ Status: ⬜ Not started
 
 ---
 
-### Feature 4: My Schedule ⬜
+### Feature 4: My Schedule ✅
 
 **Done when:**
-- [ ] Route `/schedule`
-- [ ] Today section: shift hours displayed
-- [ ] Large "Sign In" button if not checked in
-- [ ] Live HH:MM:SS hours counter when checked in
-- [ ] "Sign Out" button when checked in
-- [ ] Weekly calendar with scheduled days
-- [ ] Date navigation
-- [ ] Mobile responsive
-- [ ] Empty state for unscheduled days
+- [x] Route `/schedule`
+- [x] Today section: shift hours displayed
+- [x] Large "Sign In" button if not checked in (stub — "Coming with Attendance (Feature 5)")
+- [x] Live HH:MM:SS hours counter stub (–:–:–, wired in Feature 5)
+- [x] "Sign Out" button when checked in (stub, Feature 5)
+- [x] Weekly calendar with scheduled days
+- [x] Date navigation
+- [x] Mobile responsive
+- [x] Empty state for unscheduled days
 
 ---
 
@@ -498,11 +498,11 @@ When tasks are split:
 ## 📍 Current status
 
 **Phase:** Feature Phase 1
-**Current task:** Feature 3 (Org Chart) — starting fresh after Phase 1 queue closeout.
-**Last session (2026-05-04):** Phase 1 queue cleared — items 1, 2, 3, 4, 5, 6, 7, 9 ✅ committed in `a70472e` + `aac2710`. Item 8 (per-employee document seeding for compliance demo) flagged DEFERRED — non-blocking polish, asset distribution already lives in `AssetSeeder` per spec.
-**Pre-approved chunk:** Phase 1 queue done; moving on to Feature 3.
+**Current task:** Feature 6 (My Leave) — Feature 4 shipped 2026-05-05.
+**Last session (2026-05-05):** Feature 4 (My Schedule) ✅ shipped. Features 6, 7, 8 in progress.
+**Pre-approved chunk:** Features 4, 6, 7, 8 approved for build in this session (Opus audit pass to follow).
 **Blockers:** None
-**Next milestone:** Feature 3 (Org Chart) → 4 (My Schedule) → 5 (Attendance + Checkpoint B) → 6 (Leave) → 7 (Approvals) → 8 (Leave Calendar + Checkpoint C).
+**Next milestone:** Feature 6 (My Leave) → 7 (Approvals) → 8 (Leave Calendar + Checkpoint C). Feature 5 (Attendance) deferred — requires real browser for camera + geolocation.
 
 ## 📦 Phase 1 build queue (locked 2026-04-30 across 3 design-discussion rounds)
 

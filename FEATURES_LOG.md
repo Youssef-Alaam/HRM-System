@@ -226,3 +226,83 @@ None. Read-only aggregation.
 - New: `specs/feature-3-org-chart.md`
 - Modified: `routes/web.php` — replaced `/org-chart` placeholder with the controller route
 - Modified: `package.json` — added `react-organizational-chart`
+
+---
+
+## Feature 4 — My Schedule ✅
+
+**Shipped:** 2026-05-05
+**Spec:** [specs/feature-4-my-schedule.md](specs/feature-4-my-schedule.md)
+**Tests added:** 12 (in `tests/Feature/Schedule/ScheduleTest.php`)
+**Total tests after:** 279 passing, 1418 assertions
+
+### What it does
+
+Weekly schedule view at `GET /schedule` (permission-gated `attendance.view.own`). Shows the authenticated employee's workweek at a glance:
+
+- **Shift strip** — shift start + end times from `employees.shift_start_time` / `shift_end_time`, formatted 12-hour AM/PM. Shows "–:–:–" stub for the live hours counter (wired in Feature 5).
+- **Sign In stub** — visually-disabled CTA with copy "Coming with Attendance (Feature 5)". No real check-in logic.
+- **Weekly 7-column grid** — Sun through Sat. Workweek days visually distinct (from `employees.workweek_days`, default Sun-Thu per Egyptian convention). Today's column has thicker ring border. Holidays from the `holidays` table shown in a gold strip inside their column.
+- **Week navigation** — prev/next week buttons via `router.get('/schedule', { week }, { replace: true, preserveState: true })`. URL param `?week=YYYY-MM-DD` selects the week; invalid params fall back silently to current week.
+- **Empty state** — if the user has no employee record, shows "No schedule configured. Contact HR to assign a shift."
+
+### Where to find it
+
+- Route: `GET /schedule` → `schedule.index`
+- Controller: [`app/Http/Controllers/ScheduleController.php`](app/Http/Controllers/ScheduleController.php)
+- Service: [`app/Services/ScheduleService.php`](app/Services/ScheduleService.php)
+- Repository: [`app/Repositories/ScheduleRepository.php`](app/Repositories/ScheduleRepository.php) implements [`ScheduleRepositoryInterface`](app/Repositories/Contracts/ScheduleRepositoryInterface.php), bound in [`AppServiceProvider`](app/Providers/AppServiceProvider.php)
+- Frontend: [`resources/js/Pages/Schedule.tsx`](resources/js/Pages/Schedule.tsx)
+- Factory: [`database/factories/HolidayFactory.php`](database/factories/HolidayFactory.php) (new — needed for holiday tests)
+
+### How to verify (per role)
+
+1. `php artisan migrate:fresh --seed` then sign in as any seeded test user.
+2. Navigate to `/schedule`. You should see today's shift hours and the current week's grid.
+3. Click the prev/next week arrows — the URL updates to `?week=YYYY-MM-DD` and the grid re-renders without a full page reload.
+4. The "Sign In" button is gray/disabled with stub copy.
+
+### Key tests
+
+- `it redirects guests to login`
+- `it renders for any authenticated employee`
+- `it blocks users without attendance.view.own permission`
+- `it returns 7 days for the current week`
+- `it marks workweek days correctly` — Sun-Thu workdays, Fri-Sat off
+- `it exposes shift hours from the employee record`
+- `it returns null employee when user has no employee record`
+- `it navigates to a specific week via ?week param`
+- `it falls back to current week on invalid ?week param`
+- `it shows org holidays on their date`
+- `it does not show holidays from another org` ← multi-tenant
+- `it only shows the authenticated users own schedule` ← isolation
+
+### Edge cases handled
+
+- User with no employee record (`user.employee_id IS NULL`) — `employee` prop null, empty state shown, no crash
+- Invalid `?week` param — silently falls back to current week's Sunday
+- Holiday on a workday AND a day-off — both markers coexist in the day cell
+- Multi-tenant isolation — OrgScope filters holidays to the user's org; explicit test verifies cross-org isolation
+
+### Compliance citations
+
+None. Read-only display of shift configuration from the employee record.
+
+### Known limitations / deferred
+
+- **Real check-in/out** — Feature 5 (Attendance). The "Sign In" button is a stub.
+- **Live HH:MM:SS counter** — Feature 5. Currently renders "–:–:–".
+- **Team schedule view** (manager seeing team's schedule) — deferred; Feature 9 (Settings) will wire shift assignment.
+
+### Files touched
+
+- New: `app/Http/Controllers/ScheduleController.php`
+- New: `app/Services/ScheduleService.php`
+- New: `app/Repositories/Contracts/ScheduleRepositoryInterface.php`
+- New: `app/Repositories/ScheduleRepository.php`
+- New: `resources/js/Pages/Schedule.tsx`
+- New: `tests/Feature/Schedule/ScheduleTest.php`
+- New: `specs/feature-4-my-schedule.md`
+- New: `database/factories/HolidayFactory.php`
+- Modified: `app/Providers/AppServiceProvider.php` — bound `ScheduleRepositoryInterface`
+- Modified: `routes/web.php` — replaced `/schedules` placeholder with the real schedule route

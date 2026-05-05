@@ -12,6 +12,7 @@ use App\Http\Controllers\FaceEnrollmentController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\OrgChartController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -155,8 +156,9 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
     // Time
     Route::get('/attendance', $placeholder('Attendance', 'GPS + selfie check-in records with face verification.'))
         ->middleware('permission:attendance.view.own')->name('placeholder.attendance');
-    Route::get('/schedules', $placeholder('Schedules', 'Shift assignments per employee and team.'))
-        ->middleware('permission:attendance.view.own')->name('placeholder.schedules');
+    Route::get('/schedule', [ScheduleController::class, 'index'])
+        ->middleware('permission:attendance.view.own')
+        ->name('schedule.index');
     Route::get('/holidays', $placeholder('Holiday calendar', 'Egyptian public holidays and make-up day rules.'))
         ->middleware('permission:org.holidays.manage')->name('placeholder.holidays');
 
