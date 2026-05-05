@@ -11,6 +11,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FaceEnrollmentController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\OtherRequestController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\HolidayCalendarController;
@@ -211,9 +212,11 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
             ->whereNumber('leaveRequest')->name('approvals.reject');
     });
 
-    // Requests
-    Route::get('/requests', $placeholder('My Requests', 'Cert letters, document requests, attendance corrections.'))
-        ->middleware('permission:requests.create.own')->name('placeholder.requests');
+    // Requests (non-leave: overtime, expense claims, change shift, holiday work)
+    Route::get('/requests', [OtherRequestController::class, 'index'])->name('requests.index');
+    Route::post('/requests', [OtherRequestController::class, 'store'])->name('requests.store');
+    Route::post('/requests/{otherRequest}/approve', [OtherRequestController::class, 'approve'])->whereNumber('otherRequest')->name('requests.approve');
+    Route::post('/requests/{otherRequest}/reject', [OtherRequestController::class, 'reject'])->whereNumber('otherRequest')->name('requests.reject');
 
     // Payroll
     Route::get('/payroll', $placeholder('Payroll Runs', 'Run, lock, and mark payroll cycles as paid.'))
