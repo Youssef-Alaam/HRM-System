@@ -498,11 +498,10 @@ When tasks are split:
 ## 📍 Current status
 
 **Phase:** Feature Phase 1
-**Current task:** Checkpoint C — Features 4, 6, 7, 8 all shipped 2026-05-05. Awaiting Walid sidebar walkthrough.
-**Last session (2026-05-05):** Feature 4 (My Schedule) ✅ shipped. Features 6, 7, 8 in progress.
-**Pre-approved chunk:** Features 4, 6, 7, 8 approved for build in this session (Opus audit pass to follow).
+**Current task:** Phase 1 sidebar features 1-8 shipped + audited. Feature 5 deferred for browser testing. Next: Checkpoint C — full sidebar walkthrough with Walid.
+**Last session (2026-05-05):** Sonnet 4.6 shipped Features 4, 6, 7, 8. Opus 4.7 audit pass: 1 fixup filed (LeaveCalendarRepository → BaseRepository); 3x test runs clean (331 passing, 1759 assertions); browser smoke clean across admin/hr/manager/employee.
 **Blockers:** None
-**Next milestone:** Feature 6 (My Leave) → 7 (Approvals) → 8 (Leave Calendar + Checkpoint C). Feature 5 (Attendance) deferred — requires real browser for camera + geolocation.
+**Next milestone:** Checkpoint C — full sidebar walkthrough with Walid (~1 hr). Feature 5 (Attendance) deferred — requires real browser for camera + geolocation.
 
 ## 📦 Phase 1 build queue (locked 2026-04-30 across 3 design-discussion rounds)
 
