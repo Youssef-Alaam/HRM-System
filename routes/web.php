@@ -12,6 +12,7 @@ use App\Http\Controllers\FaceEnrollmentController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ComplianceController;
+use App\Http\Controllers\ForeignQuotaController;
 use App\Http\Controllers\GovernmentFilingController;
 use App\Http\Controllers\OtherRequestController;
 use App\Http\Controllers\ReportController;
@@ -277,6 +278,9 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
         Route::get('/assets', [ExportController::class, 'assets'])->name('assets');
         Route::get('/documents', [ExportController::class, 'documents'])->name('documents');
     });
+
+    // Foreign Worker Quota Dashboard (Feature 19) — HR/Admin only
+    Route::get('/foreign-quota', [ForeignQuotaController::class, 'index'])->name('foreign-quota.index');
 
     // Government Filings (Feature 18) — HR/Admin only
     Route::middleware('permission:exports.any')->group(function () {
