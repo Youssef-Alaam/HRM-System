@@ -12,6 +12,7 @@ use App\Http\Controllers\FaceEnrollmentController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ComplianceController;
+use App\Http\Controllers\GovernmentFilingController;
 use App\Http\Controllers\OtherRequestController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\MessageController;
@@ -275,6 +276,13 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
         Route::get('/employees', [ExportController::class, 'employees'])->name('employees');
         Route::get('/assets', [ExportController::class, 'assets'])->name('assets');
         Route::get('/documents', [ExportController::class, 'documents'])->name('documents');
+    });
+
+    // Government Filings (Feature 18) — HR/Admin only
+    Route::middleware('permission:exports.any')->group(function () {
+        Route::get('/government-filings', [GovernmentFilingController::class, 'index'])->name('government-filings.index');
+        Route::get('/government-filings/nosi', [GovernmentFilingController::class, 'nosi'])->name('government-filings.nosi');
+        Route::get('/government-filings/form6', [GovernmentFilingController::class, 'form6'])->name('government-filings.form6');
     });
 
     Route::get('/admin/users', $placeholder('Users & Roles', 'Create accounts, assign roles, toggle per-user permission overrides.'))
