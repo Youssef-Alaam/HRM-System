@@ -30,6 +30,7 @@ import {
 import { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 
 import Dropdown from '@/Components/Dropdown';
+import GlobalSearch from '@/Components/GlobalSearch';
 import LoadingScreen from '@/Components/LoadingScreen';
 
 type NavItem = {
@@ -425,6 +426,7 @@ export default function AppLayout({
                                 header
                             )}
                         </div>
+                        <GlobalSearch />
                         {user && <UserMenu user={user} adminItems={adminItems} />}
                     </header>
 
