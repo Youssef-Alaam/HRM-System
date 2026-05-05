@@ -9,6 +9,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDocumentController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FaceEnrollmentController;
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\HolidayCalendarController;
 use App\Http\Controllers\HolidayController;
@@ -267,8 +268,8 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
 
     Route::get('/admin/users', $placeholder('Users & Roles', 'Create accounts, assign roles, toggle per-user permission overrides.'))
         ->middleware('permission:users.assign_roles')->name('placeholder.admin.users');
-    Route::get('/admin/audit-log', $placeholder('Audit Log', 'Immutable trail of every write across the system.'))
-        ->middleware('permission:audit.view')->name('placeholder.admin.audit-log');
+    Route::get('/admin/audit-log', [AuditLogController::class, 'index'])
+        ->middleware('permission:audit.view')->name('admin.audit-log.index');
     Route::get('/admin/settings', $placeholder('System Settings', 'Org-wide configuration: compliance values, integrations, branding.'))
         ->middleware('permission:settings.edit')->name('placeholder.admin.settings');
 
