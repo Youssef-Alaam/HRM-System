@@ -10,6 +10,7 @@ use App\Http\Controllers\EmployeeDocumentController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FaceEnrollmentController;
 use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\HolidayCalendarController;
@@ -228,8 +229,12 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
     Route::get('/messages/{message}', [MessageController::class, 'show'])->whereNumber('message')->name('messages.show');
-    Route::get('/announcements', $placeholder('Announcements', 'Company-wide and department-targeted broadcasts.'))
-        ->middleware('permission:announcements.view')->name('placeholder.announcements');
+    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+    Route::get('/announcements/{announcement}', [AnnouncementController::class, 'show'])->whereNumber('announcement')->name('announcements.show');
+    Route::patch('/announcements/{announcement}', [AnnouncementController::class, 'update'])->whereNumber('announcement')->name('announcements.update');
+    Route::post('/announcements/{announcement}/publish', [AnnouncementController::class, 'publish'])->whereNumber('announcement')->name('announcements.publish');
+    Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy'])->whereNumber('announcement')->name('announcements.destroy');
 
     // Settings (admin)
     Route::middleware('permission:settings.document_types.manage')

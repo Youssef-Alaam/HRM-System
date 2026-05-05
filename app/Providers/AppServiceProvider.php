@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Repositories\AnnouncementRepository;
 use App\Repositories\AssetCategoryRepository;
 use App\Repositories\AssetRepository;
+use App\Repositories\Contracts\AnnouncementRepositoryInterface;
 use App\Repositories\Contracts\AssetCategoryRepositoryInterface;
 use App\Repositories\Contracts\AssetRepositoryInterface;
 use App\Repositories\Contracts\DashboardRepositoryInterface;
@@ -46,6 +48,7 @@ class AppServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     private const REPOSITORY_BINDINGS = [
+        AnnouncementRepositoryInterface::class => AnnouncementRepository::class,
         HolidayRepositoryInterface::class => HolidayRepository::class,
         DashboardRepositoryInterface::class => DashboardRepository::class,
         EmployeeRepositoryInterface::class => EmployeeRepository::class,
