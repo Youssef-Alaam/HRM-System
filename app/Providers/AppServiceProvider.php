@@ -7,6 +7,7 @@ use App\Repositories\AssetRepository;
 use App\Repositories\Contracts\AssetCategoryRepositoryInterface;
 use App\Repositories\Contracts\AssetRepositoryInterface;
 use App\Repositories\Contracts\DashboardRepositoryInterface;
+use App\Repositories\Contracts\DepartmentRepositoryInterface;
 use App\Repositories\Contracts\DocumentTypeRepositoryInterface;
 use App\Repositories\Contracts\EmployeeDocumentRepositoryInterface;
 use App\Repositories\Contracts\EmployeeRepositoryInterface;
@@ -15,8 +16,11 @@ use App\Repositories\Contracts\HolidayRepositoryInterface;
 use App\Repositories\Contracts\LeaveCalendarRepositoryInterface;
 use App\Repositories\Contracts\LeaveRequestRepositoryInterface;
 use App\Repositories\Contracts\LeaveTypeRepositoryInterface;
+use App\Repositories\Contracts\OfficeRepositoryInterface;
+use App\Repositories\Contracts\PositionRepositoryInterface;
 use App\Repositories\Contracts\ScheduleRepositoryInterface;
 use App\Repositories\DashboardRepository;
+use App\Repositories\DepartmentRepository;
 use App\Repositories\DocumentTypeRepository;
 use App\Repositories\EmployeeDocumentRepository;
 use App\Repositories\EmployeeRepository;
@@ -25,6 +29,8 @@ use App\Repositories\HolidayRepository;
 use App\Repositories\LeaveCalendarRepository;
 use App\Repositories\LeaveRequestRepository;
 use App\Repositories\LeaveTypeRepository;
+use App\Repositories\OfficeRepository;
+use App\Repositories\PositionRepository;
 use App\Repositories\ScheduleRepository;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -50,6 +56,9 @@ class AppServiceProvider extends ServiceProvider
         LeaveTypeRepositoryInterface::class => LeaveTypeRepository::class,
         LeaveRequestRepositoryInterface::class => LeaveRequestRepository::class,
         LeaveCalendarRepositoryInterface::class => LeaveCalendarRepository::class,
+        DepartmentRepositoryInterface::class => DepartmentRepository::class,
+        PositionRepositoryInterface::class => PositionRepository::class,
+        OfficeRepositoryInterface::class => OfficeRepository::class,
     ];
 
     /**

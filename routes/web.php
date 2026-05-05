@@ -9,8 +9,12 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDocumentController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FaceEnrollmentController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\HolidayCalendarController;
 use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\OrgChartController;
+use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\LeaveCalendarController;
 use App\Http\Controllers\LeaveController;
@@ -149,12 +153,20 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
     | locked 2026-04-30 to live under Settings. Their existing permissions
     | are the org.* manage gates (HR + Admin only).
     */
-    Route::get('/departments', $placeholder('Departments', 'Department hierarchy and reporting structure.'))
-        ->middleware('permission:org.departments.manage')->name('placeholder.departments');
-    Route::get('/positions', $placeholder('Positions', 'Job titles and levels per department.'))
-        ->middleware('permission:org.positions.manage')->name('placeholder.positions');
-    Route::get('/offices', $placeholder('Offices', 'Physical locations with GPS coordinates and check-in radius.'))
-        ->middleware('permission:org.offices.manage')->name('placeholder.offices');
+    Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
+    Route::post('/departments', [DepartmentController::class, 'store'])->name('departments.store');
+    Route::patch('/departments/{department}', [DepartmentController::class, 'update'])->whereNumber('department')->name('departments.update');
+    Route::delete('/departments/{department}', [DepartmentController::class, 'destroy'])->whereNumber('department')->name('departments.destroy');
+
+    Route::get('/positions', [PositionController::class, 'index'])->name('positions.index');
+    Route::post('/positions', [PositionController::class, 'store'])->name('positions.store');
+    Route::patch('/positions/{position}', [PositionController::class, 'update'])->whereNumber('position')->name('positions.update');
+    Route::delete('/positions/{position}', [PositionController::class, 'destroy'])->whereNumber('position')->name('positions.destroy');
+
+    Route::get('/offices', [OfficeController::class, 'index'])->name('offices.index');
+    Route::post('/offices', [OfficeController::class, 'store'])->name('offices.store');
+    Route::patch('/offices/{office}', [OfficeController::class, 'update'])->whereNumber('office')->name('offices.update');
+    Route::delete('/offices/{office}', [OfficeController::class, 'destroy'])->whereNumber('office')->name('offices.destroy');
 
     // Time
     Route::get('/attendance', $placeholder('Attendance', 'GPS + selfie check-in records with face verification.'))
@@ -162,8 +174,7 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
     Route::get('/schedule', [ScheduleController::class, 'index'])
         ->middleware('permission:attendance.view.own')
         ->name('schedule.index');
-    Route::get('/holidays', $placeholder('Holiday calendar', 'Egyptian public holidays and make-up day rules.'))
-        ->middleware('permission:org.holidays.manage')->name('placeholder.holidays');
+    Route::get('/holidays', [HolidayCalendarController::class, 'index'])->name('holidays.index');
 
     // Leave — Feature 6
     Route::get('/my-leave', [LeaveController::class, 'index'])

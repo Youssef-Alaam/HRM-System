@@ -135,6 +135,17 @@
   }
 }
 
+/*
+  Reusable input utility — standard text input / select style used across
+  Settings forms and any other form surface that doesn't warrant a full
+  shadcn component.
+*/
+@layer components {
+  .input-base {
+    @apply block h-11 w-full rounded-md border border-yzh-bone-soft bg-white px-3 text-sm text-yzh-ink shadow-sm transition-colors focus:border-yzh-gold focus:outline-none focus:ring-2 focus:ring-yzh-gold/30;
+  }
+}
+
 /* Pulsing dot for "Loading" state indicator */
 @keyframes ls-dot-pulse {
   0%,
