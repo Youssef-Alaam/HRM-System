@@ -12,6 +12,7 @@ use App\Http\Controllers\FaceEnrollmentController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\OtherRequestController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\HolidayCalendarController;
@@ -225,8 +226,7 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
         ->middleware('permission:payroll.payslip.view.own')->name('placeholder.payslips');
 
     // Reports
-    Route::get('/reports', $placeholder('Reports', 'Headcount, leave usage, attendance trends, payroll summaries.'))
-        ->middleware('permission:reports.run.own')->name('placeholder.reports');
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 
     // Communication
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
