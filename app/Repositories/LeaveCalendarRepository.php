@@ -8,8 +8,13 @@ use App\Models\LeaveRequest;
 use App\Repositories\Contracts\LeaveCalendarRepositoryInterface;
 use Illuminate\Support\Collection;
 
-class LeaveCalendarRepository implements LeaveCalendarRepositoryInterface
+class LeaveCalendarRepository extends BaseRepository implements LeaveCalendarRepositoryInterface
 {
+    protected function model(): string
+    {
+        return LeaveRequest::class;
+    }
+
     /** @param array<int> $employeeIds */
     public function entriesForPeriod(int $orgId, string $from, string $to, array $employeeIds = []): Collection
     {
