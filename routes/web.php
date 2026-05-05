@@ -11,6 +11,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FaceEnrollmentController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\ComplianceController;
 use App\Http\Controllers\OtherRequestController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\MessageController;
@@ -280,6 +281,17 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
         ->middleware('permission:users.assign_roles')->name('placeholder.admin.users');
     Route::get('/admin/audit-log', [AuditLogController::class, 'index'])
         ->middleware('permission:audit.view')->name('admin.audit-log.index');
+
+    // Compliance Workflows (Feature 17) — HR/Admin only
+    Route::middleware('permission:employees.terminate')->group(function () {
+        Route::get('/compliance', [ComplianceController::class, 'index'])->name('compliance.index');
+        Route::get('/compliance/employees/{employee}/termination-preview', [ComplianceController::class, 'terminationPreview'])
+            ->whereNumber('employee')->name('compliance.termination-preview');
+        Route::post('/compliance/employees/{employee}/terminate', [ComplianceController::class, 'terminate'])
+            ->whereNumber('employee')->name('compliance.terminate');
+        Route::post('/compliance/employees/{employee}/extend-retirement', [ComplianceController::class, 'extendRetirement'])
+            ->whereNumber('employee')->name('compliance.extend-retirement');
+    });
     Route::get('/admin/settings', $placeholder('System Settings', 'Org-wide configuration: compliance values, integrations, branding.'))
         ->middleware('permission:settings.edit')->name('placeholder.admin.settings');
 
