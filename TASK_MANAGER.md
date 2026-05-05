@@ -374,18 +374,18 @@ Status: ⬜ Not started
 
 ---
 
-### Feature 7: Approvals (Manager/HR view) ⬜
+### Feature 7: Approvals (Manager/HR view) ✅ 2026-05-05
 
 **Done when:**
-- [ ] Route `/approvals`
-- [ ] Manager sees pending requests from their team
-- [ ] HR sees manager-approved + escalations
-- [ ] Approve button (status, balance decrement, notification)
-- [ ] Reject button (mandatory reason)
-- [ ] Per Decision 19: annual = manager discretion; sick/permissions/casual/maternity/paternity = right
-- [ ] CEO/NULL manager_id auto-approves per Decision 13
-- [ ] Approver-cascade on terminated approver per ANA-3.18
-- [ ] Audit log every action
+- [x] Route `/approvals`
+- [x] Manager sees pending requests from their team
+- [x] HR sees manager-approved + escalations
+- [x] Approve button (status, balance decrement, notification)
+- [x] Reject button (mandatory reason)
+- [x] Per Decision 19: annual = manager discretion; sick/permissions/casual/maternity/paternity = right
+- [x] CEO/NULL manager_id auto-approves per Decision 13
+- [x] Approver-cascade on terminated approver per ANA-3.18
+- [x] Audit log every action
 
 ---
 
@@ -498,7 +498,7 @@ When tasks are split:
 ## 📍 Current status
 
 **Phase:** Feature Phase 1
-**Current task:** Feature 7 (Approvals) — Features 4 + 6 shipped 2026-05-05.
+**Current task:** Feature 8 (Leave Calendar) — Features 4, 6, 7 shipped 2026-05-05.
 **Last session (2026-05-05):** Feature 4 (My Schedule) ✅ shipped. Features 6, 7, 8 in progress.
 **Pre-approved chunk:** Features 4, 6, 7, 8 approved for build in this session (Opus audit pass to follow).
 **Blockers:** None

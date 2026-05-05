@@ -11,6 +11,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FaceEnrollmentController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\OrgChartController;
+use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScheduleController;
@@ -180,6 +181,15 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
         ->name('leave.cancel-override');
     Route::get('/leave/balances', $placeholder('Leave Balances', 'Annual, sick, casual, emergency credit, and comp-day balances.'))
         ->middleware('permission:leave.view.own')->name('placeholder.leave-balances');
+
+    // Approvals — Feature 7 (manager + HR queue)
+    Route::middleware('permission:leave.approve.team|leave.approve.final')->group(function () {
+        Route::get('/approvals', [ApprovalController::class, 'index'])->name('approvals.index');
+        Route::post('/approvals/{leaveRequest}/approve', [ApprovalController::class, 'approve'])
+            ->whereNumber('leaveRequest')->name('approvals.approve');
+        Route::post('/approvals/{leaveRequest}/reject', [ApprovalController::class, 'reject'])
+            ->whereNumber('leaveRequest')->name('approvals.reject');
+    });
 
     // Requests
     Route::get('/requests', $placeholder('My Requests', 'Cert letters, document requests, attendance corrections.'))

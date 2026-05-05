@@ -9,6 +9,10 @@ interface LeaveRequestRepositoryInterface
 {
     public function paginateForEmployee(int $employeeId, string $status): LengthAwarePaginator;
 
+    public function paginateForManager(int $managerEmployeeId, int $orgId): LengthAwarePaginator;
+
+    public function paginateForHr(int $orgId): LengthAwarePaginator;
+
     public function find(int $id): ?LeaveRequest;
 
     /** @param array<string, mixed> $data */

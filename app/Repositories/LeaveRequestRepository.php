@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Employee;
 use App\Models\LeaveRequest;
 use App\Repositories\Contracts\LeaveRequestRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -11,6 +12,41 @@ class LeaveRequestRepository extends BaseRepository implements LeaveRequestRepos
     protected function model(): string
     {
         return LeaveRequest::class;
+    }
+
+    public function paginateForManager(int $managerEmployeeId, int $orgId): LengthAwarePaginator
+    {
+        // Per ANA-3.18: terminated manager → empty queue (requests cascade to HR)
+        $managerActive = Employee::withoutGlobalScopes()
+            ->where('id', $managerEmployeeId)
+            ->where('org_id', $orgId)
+            ->whereNull('deleted_at')
+            ->exists();
+
+        if (! $managerActive) {
+            return new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20);
+        }
+
+        return LeaveRequest::query()
+            ->where('leave_requests.org_id', $orgId)
+            ->where('leave_requests.status', 'pending')
+            ->whereHas('employee', fn ($q) => $q
+                ->where('manager_id', $managerEmployeeId)
+                ->whereNull('employees.deleted_at')
+            )
+            ->with(['employee.department', 'leaveType'])
+            ->latest('leave_requests.created_at')
+            ->paginate(20);
+    }
+
+    public function paginateForHr(int $orgId): LengthAwarePaginator
+    {
+        return LeaveRequest::query()
+            ->where('leave_requests.org_id', $orgId)
+            ->where('leave_requests.status', 'pending')
+            ->with(['employee.department', 'leaveType'])
+            ->latest('leave_requests.created_at')
+            ->paginate(20);
     }
 
     public function paginateForEmployee(int $employeeId, string $status): LengthAwarePaginator

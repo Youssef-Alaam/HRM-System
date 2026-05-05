@@ -410,3 +410,27 @@ Full leave-request lifecycle at `GET /my-leave` (permission: `leave.view.own`):
 - Modified: `app/Providers/AppServiceProvider.php` — bound LeaveType + LeaveRequest repositories
 - Modified: `routes/web.php` — replaced `/leave` placeholder with 4 leave routes
 - Modified: `database/seeders/DatabaseSeeder.php` — added LeaveTypeSeeder
+
+---
+
+## Feature 7: Approvals (Manager/HR view)
+**Shipped:** 2026-05-05
+**Tests:** +17 new (317 total)
+**Files:**
+- `specs/feature-7-approvals.md`
+- `tests/Feature/Approvals/ApprovalsTest.php`
+- `app/Http/Controllers/ApprovalController.php` (60 lines)
+- `app/Http/Requests/ApproveLeaveRequest.php`
+- `app/Http/Requests/RejectLeaveRequest.php`
+- `app/Services/ApprovalService.php` (108 lines)
+- `app/Repositories/Contracts/LeaveRequestRepositoryInterface.php` (added paginateForManager/paginateForHr)
+- `app/Repositories/LeaveRequestRepository.php` (added paginateForManager/paginateForHr)
+- `resources/js/Pages/Approvals/Index.tsx` (228 lines)
+- `routes/web.php`
+- `TASK_MANAGER.md`
+
+**Key decisions implemented:**
+- Decision 19: manager blocked from rejecting `is_right_not_discretion = true` leave types; only HR can
+- ANA-3.18: terminated manager (soft-deleted employee) → empty manager queue, requests cascade to HR automatically
+- Balance decremented on approve (same `LeaveService::adjustBalance`)
+- All writes through `$this->transaction()` → Auditable trait logs before/after diff
