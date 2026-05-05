@@ -306,3 +306,107 @@ None. Read-only display of shift configuration from the employee record.
 - New: `database/factories/HolidayFactory.php`
 - Modified: `app/Providers/AppServiceProvider.php` — bound `ScheduleRepositoryInterface`
 - Modified: `routes/web.php` — replaced `/schedules` placeholder with the real schedule route
+
+---
+
+## Feature 6 — My Leave ✅
+
+**Shipped:** 2026-05-05
+**Spec:** [specs/feature-6-my-leave.md](specs/feature-6-my-leave.md)
+**Tests added:** 21 (in `tests/Feature/Leave/MyLeaveTest.php`)
+**Total tests after:** 300 passing, 1498 assertions
+
+### What it does
+
+Full leave-request lifecycle at `GET /my-leave` (permission: `leave.view.own`):
+
+- **Three-tab view** — Pending / Approved / Rejected via `?tab=` param. Empty state shown when no requests in that status.
+- **New Leave Request form** — "New request" button toggles `NewLeaveForm` inline. Uses Inertia `useForm` (never raw `<form>`). Leave type dropdown shows balance and advance-notice warning. Medical certificate upload appears when the type requires it.
+- **Egyptian law compliance:**
+  - Per Art. 89: annual leave 21 days, manager-discretionary
+  - Per Art. 54: sick leave is a right; 3+ calendar-day spans require a medical certificate (PDF/JPEG/PNG/WebP ≤ 10 MB)
+  - Per Art. 90: casual leave 7 days/year
+  - Per Art. 93 (Law 29/2025): maternity 120 days, female-only gate
+  - Per Art. 93 bis: paternity 1 day per birth
+  - Per Art. 94: study leave requires 10-day advance notice
+- **Decision 13** — employee with `manager_id IS NULL` auto-approves on submit, balance decremented immediately, no approval queue needed
+- **Day-count helper** (`LeaveService::countWorkdays`) excludes Fri + Sat (Egyptian weekend default) and org public holidays
+- **Cancel flow** — pending requests cancel directly (soft-delete); approved requests require HR override via `POST /my-leave/{id}/cancel-with-override` (permission: `leave.edit.any`)
+- **6 leave types seeded** via `LeaveTypeSeeder` with Egyptian law citations
+
+### Where to find it
+
+- Route: `GET /my-leave` → `leave.index`; `POST /my-leave` → `leave.store`
+- Controller: [`app/Http/Controllers/LeaveController.php`](app/Http/Controllers/LeaveController.php)
+- FormRequest: [`app/Http/Requests/StoreLeaveRequest.php`](app/Http/Requests/StoreLeaveRequest.php)
+- Service: [`app/Services/LeaveService.php`](app/Services/LeaveService.php)
+- Repositories: [`LeaveTypeRepository`](app/Repositories/LeaveTypeRepository.php) + [`LeaveRequestRepository`](app/Repositories/LeaveRequestRepository.php)
+- Frontend: [`resources/js/Pages/Leave/Index.tsx`](resources/js/Pages/Leave/Index.tsx) + [`NewLeaveForm.tsx`](resources/js/Pages/Leave/NewLeaveForm.tsx)
+- Seeder: [`database/seeders/LeaveTypeSeeder.php`](database/seeders/LeaveTypeSeeder.php)
+
+### Key tests
+
+- `it redirects guests to login`
+- `it renders the page for an authenticated employee`
+- `it returns pending requests tab by default`
+- `it filters by approved tab`
+- `it creates a pending leave request` (with manager)
+- `it auto-approves when employee has no manager (Decision 13)`
+- `it decrements the leave balance on auto-approval`
+- `it rejects start_date in the past`
+- `it rejects end_date before start_date`
+- `it rejects a request that exceeds the balance`
+- `it rejects overlapping requests`
+- `it rejects sick leave 3+ days without medical certificate`
+- `it rejects study leave with less than 10 days advance notice`
+- `it rejects maternity leave for male employees`
+- `it accepts sick leave with valid certificate attachment`
+- `it rejects attachments over 10 MB`
+- `it cancels a pending request`
+- `it blocks cancelling another employees request`
+- `it excludes weekends from day count`
+- `it excludes public holidays from day count`
+- `it only returns the authenticated employees own leave requests` ← multi-tenant
+
+### Compliance citations
+
+```php
+// Per Labor Law 14/2025 Art. 89 — annual leave entitlement scales by tenure
+// Per Labor Law 14/2025 Art. 54 — sick leave is a right, not discretionary
+// Per Labor Law 14/2025 Art. 90 — casual leave 7 days/year
+// Per Labor Law 14/2025 Art. 93 (Law 29/2025) — maternity 120 days, female only
+// Per Labor Law 14/2025 Art. 93 bis — paternity 1 day per birth, max 3 instances
+// Per Labor Law 14/2025 Art. 94 — study leave requires 10-day advance notice
+// Per Decision 13: NULL manager_id auto-approves own requests, HR notified via audit log
+```
+
+### Known limitations / deferred
+
+- **Weekend confirmation modal** (ANA-2.17) — deferred; form currently allows Fri/Sat dates. The day-count correctly excludes them; a warning modal can be added as a polish item.
+- **Leave interaction matrix** (ANA-3.10) — deferred to Feature 17 Compliance Workflows.
+- **Sick leave layered payment** (75%/85%/0%) — deferred to Feature 15 Payroll.
+- **HR balance adjustment tool** — Feature 9 (Settings).
+
+### Files touched
+
+- New: `app/Http/Controllers/LeaveController.php`
+- New: `app/Http/Requests/StoreLeaveRequest.php`
+- New: `app/Services/LeaveService.php`
+- New: `app/Repositories/Contracts/LeaveTypeRepositoryInterface.php`
+- New: `app/Repositories/Contracts/LeaveRequestRepositoryInterface.php`
+- New: `app/Repositories/LeaveTypeRepository.php`
+- New: `app/Repositories/LeaveRequestRepository.php`
+- New: `app/Models/LeaveType.php`
+- New: `app/Models/LeaveRequest.php`
+- New: `resources/js/Pages/Leave/Index.tsx`
+- New: `resources/js/Pages/Leave/NewLeaveForm.tsx`
+- New: `database/migrations/2026_05_05_060000_create_leave_types_table.php`
+- New: `database/migrations/2026_05_05_060001_create_leave_requests_table.php`
+- New: `database/factories/LeaveTypeFactory.php`
+- New: `database/factories/LeaveRequestFactory.php`
+- New: `database/seeders/LeaveTypeSeeder.php`
+- New: `tests/Feature/Leave/MyLeaveTest.php`
+- New: `specs/feature-6-my-leave.md`
+- Modified: `app/Providers/AppServiceProvider.php` — bound LeaveType + LeaveRequest repositories
+- Modified: `routes/web.php` — replaced `/leave` placeholder with 4 leave routes
+- Modified: `database/seeders/DatabaseSeeder.php` — added LeaveTypeSeeder

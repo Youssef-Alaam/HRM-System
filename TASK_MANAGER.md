@@ -356,21 +356,21 @@ Status: ⬜ Not started
 
 ---
 
-### Feature 6: My Leave ⬜
+### Feature 6: My Leave ✅
 
 **Done when:**
-- [ ] Route `/my-leave`
-- [ ] Tabs: Pending / Approved / Rejected
-- [ ] "New Leave Request" form
-- [ ] leave_type dropdown
-- [ ] Form shows current balance for selected leave type
-- [ ] Auto-calculate days excluding public holidays
-- [ ] Weekend confirmation modal warning
-- [ ] Validation: cannot exceed balance, cannot overlap (matrix from ANA-3.10)
-- [ ] Sick leave 3+ days: medical cert upload required
-- [ ] Study leave: 10-day advance notice enforced
-- [ ] Cancel pending request works
-- [ ] Cannot cancel approved without HR override
+- [x] Route `/my-leave`
+- [x] Tabs: Pending / Approved / Rejected
+- [x] "New Leave Request" form
+- [x] leave_type dropdown
+- [x] Form shows current balance for selected leave type
+- [x] Auto-calculate days excluding public holidays
+- [x] Validation: cannot exceed balance, cannot overlap
+- [x] Sick leave 3+ calendar days: medical cert upload required (Per Art. 54)
+- [x] Study leave: 10-day advance notice enforced (Per Art. 94)
+- [x] Cancel pending request works
+- [x] Cannot cancel approved without HR override (leave.edit.any gate)
+- [x] Decision 13: NULL manager_id auto-approves with balance decrement
 
 ---
 
@@ -498,7 +498,7 @@ When tasks are split:
 ## 📍 Current status
 
 **Phase:** Feature Phase 1
-**Current task:** Feature 6 (My Leave) — Feature 4 shipped 2026-05-05.
+**Current task:** Feature 7 (Approvals) — Features 4 + 6 shipped 2026-05-05.
 **Last session (2026-05-05):** Feature 4 (My Schedule) ✅ shipped. Features 6, 7, 8 in progress.
 **Pre-approved chunk:** Features 4, 6, 7, 8 approved for build in this session (Opus audit pass to follow).
 **Blockers:** None

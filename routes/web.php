@@ -11,6 +11,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FaceEnrollmentController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\OrgChartController;
+use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Route;
@@ -162,9 +163,21 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
     Route::get('/holidays', $placeholder('Holiday calendar', 'Egyptian public holidays and make-up day rules.'))
         ->middleware('permission:org.holidays.manage')->name('placeholder.holidays');
 
-    // Leave
-    Route::get('/leave', $placeholder('Leave Requests', 'Request leave; approvals routed via your manager and HR.'))
-        ->middleware('permission:leave.request.own')->name('placeholder.leave');
+    // Leave — Feature 6
+    Route::get('/my-leave', [LeaveController::class, 'index'])
+        ->middleware('permission:leave.view.own')
+        ->name('leave.index');
+    Route::post('/my-leave', [LeaveController::class, 'store'])
+        ->middleware('permission:leave.request.own')
+        ->name('leave.store');
+    Route::post('/my-leave/{leaveRequest}/cancel', [LeaveController::class, 'cancel'])
+        ->whereNumber('leaveRequest')
+        ->middleware('permission:leave.request.own')
+        ->name('leave.cancel');
+    Route::post('/my-leave/{leaveRequest}/cancel-with-override', [LeaveController::class, 'cancelWithOverride'])
+        ->whereNumber('leaveRequest')
+        ->middleware('permission:leave.edit.any')
+        ->name('leave.cancel-override');
     Route::get('/leave/balances', $placeholder('Leave Balances', 'Annual, sick, casual, emergency credit, and comp-day balances.'))
         ->middleware('permission:leave.view.own')->name('placeholder.leave-balances');
 

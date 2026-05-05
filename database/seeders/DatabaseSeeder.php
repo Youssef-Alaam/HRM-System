@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             DocumentTypeSeeder::class,
             AssetCategorySeeder::class,
             AssetSeeder::class,
+            LeaveTypeSeeder::class,
         ]);
     }
 }
