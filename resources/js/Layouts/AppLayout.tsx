@@ -30,6 +30,7 @@ import {
 import { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 
 import Dropdown from '@/Components/Dropdown';
+import FlashToast from '@/Components/FlashToast';
 import GlobalSearch from '@/Components/GlobalSearch';
 import LoadingScreen from '@/Components/LoadingScreen';
 
@@ -325,6 +326,7 @@ export default function AppLayout({
     );
 
     return (
+        <>
         <div className="min-h-screen bg-yzh-bone text-yzh-ink">
             {/* Mobile top bar */}
             <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between bg-yzh-ink px-4 py-3 border-b border-yzh-ink-mute">
@@ -455,6 +457,8 @@ export default function AppLayout({
                 </div>
             </div>
         </div>
+        <FlashToast />
+        </>
     );
 }
 
