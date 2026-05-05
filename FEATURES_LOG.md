@@ -434,3 +434,29 @@ Full leave-request lifecycle at `GET /my-leave` (permission: `leave.view.own`):
 - ANA-3.18: terminated manager (soft-deleted employee) → empty manager queue, requests cascade to HR automatically
 - Balance decremented on approve (same `LeaveService::adjustBalance`)
 - All writes through `$this->transaction()` → Auditable trait logs before/after diff
+
+---
+
+## Feature 8: Leave Calendar
+**Shipped:** 2026-05-05
+**Tests:** +14 new (331 total)
+**Files:**
+- `specs/feature-8-leave-calendar.md`
+- `tests/Feature/LeaveCalendar/LeaveCalendarTest.php`
+- `app/Http/Controllers/LeaveCalendarController.php` (21 lines)
+- `app/Services/LeaveCalendarService.php` (124 lines)
+- `app/Repositories/Contracts/LeaveCalendarRepositoryInterface.php`
+- `app/Repositories/LeaveCalendarRepository.php` (59 lines)
+- `resources/js/Pages/LeaveCalendar/Index.tsx` (297 lines)
+- `routes/web.php`
+- `app/Providers/AppServiceProvider.php`
+- `TASK_MANAGER.md`
+
+**Key decisions implemented:**
+- Employee sees all approved leave in org but colleagues show as "out of office" (no type/reason)
+- Manager sees team full detail; HR sees everyone full detail
+- Month generates N days per month; week generates exactly 7 days starting Monday
+- Holidays rendered as gold strip on the day cell
+- Today cell highlighted with yzh-gold ring
+- HR department filter: single query via Employee model, no N+1
+- Cross-org isolation via OrgScope on LeaveRequest

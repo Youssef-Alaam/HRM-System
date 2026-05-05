@@ -389,18 +389,18 @@ Status: ⬜ Not started
 
 ---
 
-### Feature 8: Leave Calendar ⬜
+### Feature 8: Leave Calendar ✅ 2026-05-05
 
 **Done when:**
-- [ ] Route `/leave-calendar`
-- [ ] Calendar grid (month/week toggle)
-- [ ] Color-coded by leave type
-- [ ] Per role: employee = own + colleagues' "out of office"; manager = own + team details; HR = everyone full
-- [ ] Click leave bar → see request details
-- [ ] Filter by department/office/employee (HR view)
-- [ ] Public holidays shown
-- [ ] Today highlighted
-- [ ] Mobile responsive
+- [x] Route `/leave-calendar`
+- [x] Calendar grid (month/week toggle)
+- [x] Color-coded by leave type
+- [x] Per role: employee = own + colleagues' "out of office"; manager = own + team details; HR = everyone full
+- [x] Click leave bar → see request details
+- [x] Filter by department/office/employee (HR view)
+- [x] Public holidays shown
+- [x] Today highlighted
+- [x] Mobile responsive
 
 **Walid reviews → approves → Foundation Phase done. Next phase = Settings, Compliance modules, Payroll.**
 
@@ -498,7 +498,7 @@ When tasks are split:
 ## 📍 Current status
 
 **Phase:** Feature Phase 1
-**Current task:** Feature 8 (Leave Calendar) — Features 4, 6, 7 shipped 2026-05-05.
+**Current task:** Checkpoint C — Features 4, 6, 7, 8 all shipped 2026-05-05. Awaiting Walid sidebar walkthrough.
 **Last session (2026-05-05):** Feature 4 (My Schedule) ✅ shipped. Features 6, 7, 8 in progress.
 **Pre-approved chunk:** Features 4, 6, 7, 8 approved for build in this session (Opus audit pass to follow).
 **Blockers:** None

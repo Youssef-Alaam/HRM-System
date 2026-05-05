@@ -12,6 +12,7 @@ use App\Http\Controllers\FaceEnrollmentController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\OrgChartController;
 use App\Http\Controllers\ApprovalController;
+use App\Http\Controllers\LeaveCalendarController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScheduleController;
@@ -181,6 +182,11 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
         ->name('leave.cancel-override');
     Route::get('/leave/balances', $placeholder('Leave Balances', 'Annual, sick, casual, emergency credit, and comp-day balances.'))
         ->middleware('permission:leave.view.own')->name('placeholder.leave-balances');
+
+    // Leave Calendar — Feature 8
+    Route::get('/leave-calendar', [LeaveCalendarController::class, 'index'])
+        ->middleware('permission:leave.view.own')
+        ->name('leave-calendar.index');
 
     // Approvals — Feature 7 (manager + HR queue)
     Route::middleware('permission:leave.approve.team|leave.approve.final')->group(function () {
