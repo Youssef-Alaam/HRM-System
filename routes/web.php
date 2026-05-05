@@ -10,6 +10,7 @@ use App\Http\Controllers\EmployeeDocumentController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FaceEnrollmentController;
 use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\HolidayCalendarController;
 use App\Http\Controllers\HolidayController;
@@ -224,8 +225,9 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
         ->middleware('permission:reports.run.own')->name('placeholder.reports');
 
     // Communication
-    Route::get('/messages', $placeholder('Messages', 'Direct chat with teammates.'))
-        ->middleware('permission:chat.send')->name('placeholder.messages');
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
+    Route::get('/messages/{message}', [MessageController::class, 'show'])->whereNumber('message')->name('messages.show');
     Route::get('/announcements', $placeholder('Announcements', 'Company-wide and department-targeted broadcasts.'))
         ->middleware('permission:announcements.view')->name('placeholder.announcements');
 

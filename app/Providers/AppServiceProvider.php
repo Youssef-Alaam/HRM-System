@@ -16,6 +16,7 @@ use App\Repositories\Contracts\HolidayRepositoryInterface;
 use App\Repositories\Contracts\LeaveCalendarRepositoryInterface;
 use App\Repositories\Contracts\LeaveRequestRepositoryInterface;
 use App\Repositories\Contracts\LeaveTypeRepositoryInterface;
+use App\Repositories\Contracts\MessageRepositoryInterface;
 use App\Repositories\Contracts\OfficeRepositoryInterface;
 use App\Repositories\Contracts\PositionRepositoryInterface;
 use App\Repositories\Contracts\ScheduleRepositoryInterface;
@@ -29,6 +30,7 @@ use App\Repositories\HolidayRepository;
 use App\Repositories\LeaveCalendarRepository;
 use App\Repositories\LeaveRequestRepository;
 use App\Repositories\LeaveTypeRepository;
+use App\Repositories\MessageRepository;
 use App\Repositories\OfficeRepository;
 use App\Repositories\PositionRepository;
 use App\Repositories\ScheduleRepository;
@@ -57,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
         LeaveRequestRepositoryInterface::class => LeaveRequestRepository::class,
         LeaveCalendarRepositoryInterface::class => LeaveCalendarRepository::class,
         DepartmentRepositoryInterface::class => DepartmentRepository::class,
+        MessageRepositoryInterface::class => MessageRepository::class,
         PositionRepositoryInterface::class => PositionRepository::class,
         OfficeRepositoryInterface::class => OfficeRepository::class,
     ];
