@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AssetCategoryController as AdminAssetCategoryController;
 use App\Http\Controllers\Admin\DocumentTypeController as AdminDocumentTypeController;
+use App\Http\Controllers\Admin\PayrollRatesController as AdminPayrollRatesController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentsController;
@@ -292,6 +293,10 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
         Route::get('/government-filings/nosi', [GovernmentFilingController::class, 'nosi'])->name('government-filings.nosi');
         Route::get('/government-filings/form6', [GovernmentFilingController::class, 'form6'])->name('government-filings.form6');
     });
+
+    // Payroll Pre-Work — Settings → Payroll Rates (read-only, awaiting Checkpoint D)
+    Route::get('/admin/payroll-rates', [AdminPayrollRatesController::class, 'index'])
+        ->middleware('permission:settings.edit')->name('admin.payroll-rates.index');
 
     Route::get('/admin/users', $placeholder('Users & Roles', 'Create accounts, assign roles, toggle per-user permission overrides.'))
         ->middleware('permission:users.assign_roles')->name('placeholder.admin.users');
