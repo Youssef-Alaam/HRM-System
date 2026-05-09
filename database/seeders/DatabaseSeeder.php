@@ -18,9 +18,11 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             EmployeeSeeder::class,
             DocumentTypeSeeder::class,
+            EmployeeDocumentSeeder::class,
             AssetCategorySeeder::class,
             AssetSeeder::class,
             LeaveTypeSeeder::class,
+            PayrollRatesSeeder::class,
         ]);
     }
 }
