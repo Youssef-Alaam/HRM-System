@@ -1,6 +1,7 @@
 import AppLayout from '@/Layouts/AppLayout';
+import EmptyState from '@/Components/EmptyState';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { PenSquare } from 'lucide-react';
+import { Inbox, PenSquare, Send } from 'lucide-react';
 import { ReactNode, useState } from 'react';
 
 type MessageRow = {
@@ -102,7 +103,19 @@ export default function Index({ messages, tab, contacts, unread_count }: Props) 
                             <span className="font-mono text-xs uppercase tracking-[0.24em] text-yzh-text">{messages.total} {tab === 'sent' ? 'sent' : 'received'}</span>
                         </div>
                         {messages.data.length === 0 ? (
-                            <p className="text-sm text-yzh-slate">{tab === 'inbox' ? 'Your inbox is empty.' : 'No sent messages.'}</p>
+                            tab === 'inbox' ? (
+                                <EmptyState
+                                    icon={Inbox}
+                                    heading="Your inbox is empty"
+                                    description="Messages sent to you will appear here. Use Compose to start a thread with a teammate."
+                                />
+                            ) : (
+                                <EmptyState
+                                    icon={Send}
+                                    heading="No sent messages"
+                                    description="Threads you start will be listed here for follow-up."
+                                />
+                            )
                         ) : (
                             <ul className="divide-y divide-yzh-bone-soft">
                                 {messages.data.map(m => (

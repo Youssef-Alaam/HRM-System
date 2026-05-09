@@ -1,6 +1,7 @@
 import AppLayout from '@/Layouts/AppLayout';
+import EmptyState from '@/Components/EmptyState';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { PenSquare } from 'lucide-react';
+import { ClipboardList, Inbox, PenSquare } from 'lucide-react';
 import { ReactNode, useState } from 'react';
 
 type RequestType = 'overtime' | 'expense_claim' | 'change_shift' | 'holiday_work';
@@ -178,7 +179,21 @@ export default function Index({ mine, pending, tab, can_approve, has_employee }:
                             </span>
                         </div>
                         {list.length === 0 ? (
-                            <p className="text-sm text-yzh-slate">{tab === 'pending' ? 'No pending requests.' : 'No requests yet.'}</p>
+                            tab === 'pending' ? (
+                                <EmptyState
+                                    icon={Inbox}
+                                    heading="No pending approvals"
+                                    description="Requests from your team waiting for review will appear here."
+                                />
+                            ) : (
+                                <EmptyState
+                                    icon={ClipboardList}
+                                    heading="No requests yet"
+                                    description={has_employee
+                                        ? 'Submit overtime, expense claims, change-shift, or holiday-work requests using New request.'
+                                        : 'Your account is not yet linked to an employee record. Ask HR to link them.'}
+                                />
+                            )
                         ) : (
                             <ul className="divide-y divide-yzh-bone-soft">
                                 {list.map(r => (

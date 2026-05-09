@@ -1,6 +1,7 @@
 import AppLayout from '@/Layouts/AppLayout';
+import EmptyState from '@/Components/EmptyState';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { PenSquare, Pin } from 'lucide-react';
+import { Megaphone, PenSquare, Pin } from 'lucide-react';
 import { ReactNode, useState } from 'react';
 
 type Department = { id: number; name: string };
@@ -155,7 +156,13 @@ export default function Index({ announcements, can_create, departments }: Props)
                 <section>
                     <div className="border-t border-yzh-bone-soft pt-5">
                         {announcements.data.length === 0 ? (
-                            <p className="text-sm text-yzh-slate">No announcements yet.</p>
+                            <EmptyState
+                                icon={Megaphone}
+                                heading="No announcements yet"
+                                description={can_create
+                                    ? 'Use New announcement above to share company-wide or department-specific updates.'
+                                    : 'Company announcements will appear here when HR publishes them.'}
+                            />
                         ) : (
                             <ul className="divide-y divide-yzh-bone-soft">
                                 {announcements.data.map(a => (
