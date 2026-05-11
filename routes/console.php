@@ -39,3 +39,15 @@ Schedule::command('handoff:send --since=24h')
 Schedule::command('face:purge-terminated')
     ->timezone('Africa/Cairo')
     ->dailyAt('03:00');
+
+/*
+|--------------------------------------------------------------------------
+| Attendance selfie purge (Decision 7 / PDPL)
+|--------------------------------------------------------------------------
+| Check-in selfies are retained 24h then auto-deleted. Reference photos
+| (the enrollment photo set) are kept for re-comparison. The descriptor
+| math match score is logged on the attendance_records row regardless.
+*/
+Schedule::command('attendance:purge-selfies')
+    ->timezone('Africa/Cairo')
+    ->hourly();

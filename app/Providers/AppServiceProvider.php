@@ -5,9 +5,11 @@ namespace App\Providers;
 use App\Repositories\AnnouncementRepository;
 use App\Repositories\AssetCategoryRepository;
 use App\Repositories\AssetRepository;
+use App\Repositories\AttendanceRepository;
 use App\Repositories\Contracts\AnnouncementRepositoryInterface;
 use App\Repositories\Contracts\AssetCategoryRepositoryInterface;
 use App\Repositories\Contracts\AssetRepositoryInterface;
+use App\Repositories\Contracts\AttendanceRepositoryInterface;
 use App\Repositories\Contracts\DashboardRepositoryInterface;
 use App\Repositories\Contracts\DepartmentRepositoryInterface;
 use App\Repositories\Contracts\DocumentTypeRepositoryInterface;
@@ -51,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
      */
     private const REPOSITORY_BINDINGS = [
         AnnouncementRepositoryInterface::class => AnnouncementRepository::class,
+        AttendanceRepositoryInterface::class => AttendanceRepository::class,
         HolidayRepositoryInterface::class => HolidayRepository::class,
         DashboardRepositoryInterface::class => DashboardRepository::class,
         EmployeeRepositoryInterface::class => EmployeeRepository::class,

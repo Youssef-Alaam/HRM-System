@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AssetCategoryController as AdminAssetCategoryCont
 use App\Http\Controllers\Admin\DocumentTypeController as AdminDocumentTypeController;
 use App\Http\Controllers\Admin\PayrollRatesController as AdminPayrollRatesController;
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentsController;
 use App\Http\Controllers\EmployeeController;
@@ -179,8 +180,16 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
     Route::delete('/offices/{office}', [OfficeController::class, 'destroy'])->whereNumber('office')->name('offices.destroy');
 
     // Time
-    Route::get('/attendance', $placeholder('Attendance', 'GPS + selfie check-in records with face verification.'))
-        ->middleware('permission:attendance.view.own')->name('placeholder.attendance');
+    Route::get('/attendance', [AttendanceController::class, 'index'])
+        ->middleware('permission:attendance.view.own')->name('attendance.index');
+    Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn'])
+        ->middleware('permission:attendance.checkin.own')->name('attendance.check-in');
+    Route::post('/attendance/check-out', [AttendanceController::class, 'checkOut'])
+        ->middleware('permission:attendance.checkin.own')->name('attendance.check-out');
+    Route::get('/admin/attendance', [AttendanceController::class, 'adminIndex'])
+        ->middleware('permission:attendance.view.any')->name('admin.attendance.index');
+    Route::patch('/admin/attendance/{record}', [AttendanceController::class, 'correct'])
+        ->whereNumber('record')->middleware('permission:attendance.edit.any')->name('admin.attendance.correct');
     Route::get('/schedule', [ScheduleController::class, 'index'])
         ->middleware('permission:attendance.view.own')
         ->name('schedule.index');
