@@ -146,6 +146,46 @@ test('hr can correct an attendance record', function () {
     expect($fresh->corrected_by_user_id)->not->toBeNull();
 });
 
+// ── Face descriptor endpoint ─────────────────────────────────────────────────
+
+test('my-descriptor returns enrolled=false when employee has no face_descriptor', function () {
+    $org = Organization::factory()->create();
+    $emp = Employee::factory()->create(['org_id' => $org->id, 'face_descriptor' => null]);
+    $user = User::factory()->create(['org_id' => $org->id, 'employee_id' => $emp->id]);
+    $user->assignRole('employee');
+    $this->actingAs($user);
+
+    $response = $this->getJson('/attendance/my-descriptor');
+    $response->assertOk();
+    $response->assertJson(['enrolled' => false, 'descriptor' => null]);
+});
+
+test('my-descriptor returns the descriptor array when enrolled', function () {
+    $org = Organization::factory()->create();
+    $descriptor = array_fill(0, 128, 0.1); // face-api descriptors are 128-d
+    $emp = Employee::factory()->create([
+        'org_id' => $org->id,
+        'face_descriptor' => $descriptor,
+    ]);
+    $user = User::factory()->create(['org_id' => $org->id, 'employee_id' => $emp->id]);
+    $user->assignRole('employee');
+    $this->actingAs($user);
+
+    $response = $this->getJson('/attendance/my-descriptor');
+    $response->assertOk();
+    $response->assertJson(['enrolled' => true]);
+    expect($response->json('descriptor'))->toBeArray();
+    expect(count($response->json('descriptor')))->toBe(128);
+});
+
+test('my-descriptor returns null for user without employee_id', function () {
+    actingAsRole('employee'); // no employee_id
+
+    $response = $this->getJson('/attendance/my-descriptor');
+    $response->assertOk();
+    $response->assertJson(['enrolled' => false]);
+});
+
 // ── Org isolation ────────────────────────────────────────────────────────────
 
 test('attendance records are scoped by org', function () {

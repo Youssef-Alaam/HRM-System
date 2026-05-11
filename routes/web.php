@@ -182,6 +182,8 @@ Route::middleware(['auth'])->group(function () use ($placeholder) {
     // Time
     Route::get('/attendance', [AttendanceController::class, 'index'])
         ->middleware('permission:attendance.view.own')->name('attendance.index');
+    Route::get('/attendance/my-descriptor', [AttendanceController::class, 'myDescriptor'])
+        ->middleware('permission:attendance.checkin.own')->name('attendance.my-descriptor');
     Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn'])
         ->middleware('permission:attendance.checkin.own')->name('attendance.check-in');
     Route::post('/attendance/check-out', [AttendanceController::class, 'checkOut'])

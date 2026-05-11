@@ -1,6 +1,7 @@
 import AppLayout from '@/Layouts/AppLayout';
+import CheckInWidget from '@/Components/CheckInWidget';
 import EmptyState from '@/Components/EmptyState';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { Clock } from 'lucide-react';
 import { ReactNode } from 'react';
 
@@ -26,7 +27,12 @@ type Paginated = {
     to: number | null;
 } | null;
 
-type Props = { records: Paginated; has_employee: boolean };
+type Props = {
+    records: Paginated;
+    has_employee: boolean;
+    current_mode?: 'check_in' | 'check_out';
+    face_enrolled?: boolean;
+};
 
 const VERDICT_LABEL: Record<string, string> = {
     verified: 'Verified',
@@ -42,40 +48,37 @@ const VERDICT_STYLE: Record<string, string> = {
     bypassed: 'text-yzh-slate',
 };
 
-export default function Index({ records, has_employee }: Props) {
+export default function Index({ records, has_employee, current_mode, face_enrolled }: Props) {
     return (
         <>
             <Head title="Attendance" />
             <div className="space-y-12 sm:space-y-16">
 
-                <section>
-                    <div className="border-t border-yzh-bone-soft pt-5">
-                        <div className="flex items-baseline gap-3 mb-6">
-                            <span className="font-mono text-xs uppercase tracking-[0.24em] text-yzh-gold">00</span>
-                            <span className="font-mono text-xs uppercase tracking-[0.24em] text-yzh-text">About attendance</span>
+                {has_employee && (
+                    <section>
+                        <div className="border-t border-yzh-bone-soft pt-5">
+                            {face_enrolled === false ? (
+                                <EmptyState
+                                    icon={Clock}
+                                    heading="Face enrollment required"
+                                    description="Ask HR to capture your 3-photo face enrollment before you can record check-ins."
+                                />
+                            ) : (
+                                <CheckInWidget
+                                    mode={current_mode ?? 'check_in'}
+                                    onSuccess={() => router.reload({ only: ['records', 'current_mode'] })}
+                                />
+                            )}
                         </div>
-                        <div className="rounded-sm border border-amber-200 bg-amber-50 p-4 max-w-2xl text-sm text-yzh-ink space-y-2">
-                            <p>
-                                <strong>Check-in / check-out UI is awaiting Walid's browser QA</strong> (Checkpoint B —
-                                camera + geolocation thresholds + selfie retention sign-off).
-                            </p>
-                            <p>
-                                The backend is live: <code className="font-mono text-xs">POST /attendance/check-in</code>
-                                and <code className="font-mono text-xs">POST /attendance/check-out</code> accept lat/long,
-                                accuracy, and a face-descriptor verdict score, and they enforce the office-radius +
-                                Decision 7 verdict thresholds. Selfies are auto-purged 24h after capture via the
-                                <code className="font-mono text-xs"> attendance:purge-selfies</code> hourly cron.
-                            </p>
-                        </div>
-                    </div>
-                </section>
+                    </section>
+                )}
 
                 <section>
                     <div className="border-t border-yzh-bone-soft pt-5">
                         <div className="flex items-baseline gap-3 mb-6">
-                            <span className="font-mono text-xs uppercase tracking-[0.24em] text-yzh-gold">01</span>
+                            <span className="font-mono text-xs uppercase tracking-[0.24em] text-yzh-gold">{has_employee ? '01' : '00'}</span>
                             <span className="font-mono text-xs uppercase tracking-[0.24em] text-yzh-text">
-                                {records?.total ?? 0} record{records?.total !== 1 ? 's' : ''}
+                                History — {records?.total ?? 0} record{records?.total !== 1 ? 's' : ''}
                             </span>
                         </div>
 

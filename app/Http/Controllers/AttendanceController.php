@@ -7,6 +7,7 @@ use App\Http\Requests\CheckOutRequest;
 use App\Models\Employee;
 use App\Repositories\Contracts\AttendanceRepositoryInterface;
 use App\Services\AttendanceService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,6 +17,24 @@ use Inertia\Response;
 class AttendanceController extends Controller
 {
     public function __construct(private readonly AttendanceService $service) {}
+
+    /** Current user's enrolled face descriptor — needed by the browser check-in widget. */
+    public function myDescriptor(Request $request): JsonResponse
+    {
+        abort_unless($request->user()->can('attendance.checkin.own'), 403);
+
+        if (! $request->user()->employee_id) {
+            return response()->json(['descriptor' => null, 'enrolled' => false]);
+        }
+
+        $employee = Employee::find($request->user()->employee_id);
+        abort_unless($employee && (int) $employee->org_id === (int) $request->user()->org_id, 403);
+
+        return response()->json([
+            'descriptor' => $employee->face_descriptor,
+            'enrolled' => $employee->face_descriptor !== null,
+        ]);
+    }
 
     public function index(Request $request): Response
     {
@@ -32,11 +51,18 @@ class AttendanceController extends Controller
             ]);
         }
 
+        $cairoDate = Carbon::now('Africa/Cairo')->toDateString();
+        $lastToday = app(AttendanceRepositoryInterface::class)
+            ->lastEventForEmployeeToday($orgId, $employeeId, $cairoDate);
+        $currentMode = ($lastToday && $lastToday->type === 'check_in') ? 'check_out' : 'check_in';
+
         return Inertia::render('Attendance/Index', [
             'records' => app(AttendanceRepositoryInterface::class)
                 ->paginateForEmployee($orgId, $employeeId)
                 ->through(fn ($r) => $this->serialize($r)),
             'has_employee' => true,
+            'current_mode' => $currentMode,
+            'face_enrolled' => Employee::find($employeeId)?->face_descriptor !== null,
         ]);
     }
 
